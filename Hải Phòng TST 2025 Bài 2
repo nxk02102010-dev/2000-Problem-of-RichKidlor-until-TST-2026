@@ -1,0 +1,83 @@
+Trên bản đồ thành phố HP có 𝑛 địa điểm (đánh số từ 1 đến 𝑛) và 𝑚 con đường hai
+chiều (đánh số từ 1 đến 𝑚), con đường 𝑖 (1 ≤ 𝑖 ≤ 𝑚) nối giữa hai địa điểm 𝑢𝑖 và 𝑣𝑖 (1 ≤
+𝑢𝑖
+, 𝑣𝑖 ≤ 𝑛; 𝑢𝑖 ≠ 𝑣𝑖) có độ nguy hiểm là 𝑝𝑖 và tiêu tốn nhiên liệu 𝑤𝑖
+.
+Hải muốn di chuyển từ địa điểm 1 đến địa điểm 𝑛 sao cho độ nguy hiểm lớn nhất là
+nhỏ nhất và trong số những cách di chuyển có độ nguy hiểm lớn nhất là nhỏ nhất đó thì
+chọn cách đi tốn ít nhiên liệu nhất.
+
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define F first
+#define S second
+#define FOR(i,a,b) for(int i = (a);i < (b);i++)
+const int MAXN = 300100,MAXE = 300100;
+struct E1{
+    int v,p,w;
+};
+struct E2{
+    int u,v,p,w;
+    bool operator<(const E2&other) const{
+        return p < other.p;
+    }
+};
+vector<E1> g[MAXN];
+vector<E2> e;
+int n,m,p[MAXN];
+int find(int v) {  return v == p[v] ? v : p[v] = find(p[v]);  }
+void unite(int a,int b){
+    a = find(a);
+    b = find(b);
+    if(a == b) return;
+    p[b] = a;
+    return;
+}
+void buildGraph(){
+    cin >> n >> m;
+    int a,b,c,d;
+    FOR(i,0,m){
+        cin >> a >> b >> c >> d;
+        g[a].push_back({b,c,d});
+        g[b].push_back({a,c,d});
+        e.push_back({a,b,c,d});
+    }
+    iota(p,p + n + 1,0);
+}
+void solve(void){
+    int mx;
+    sort(e.begin(),e.end());
+    FOR(i,0,e.size()){
+        unite(e[i].u,e[i].v);
+        if(find(1) == find(n)){
+            mx = e[i].p;
+            break;
+        }
+    }
+    vector<int> dis(n + 1,4e18);
+    priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>> q;
+    q.push({0,1});
+    dis[1] = 0;
+    while(!q.empty()){
+        pair<int,int> top = q.top();q.pop();
+        int u = top.S;
+        int wu = top.F;
+        if(dis[u] != wu) continue;
+        for(auto t : g[u]){
+            int v = t.v;
+            if(t.p > mx) continue;
+            if(dis[v] > wu + t.w){
+                dis[v] = wu + t.w;
+                q.push({dis[v],v});
+            }
+        }
+    }
+    cout << mx << ' ' << dis[n] << '\n';
+}
+signed main(){
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    buildGraph();
+    solve();
+}
