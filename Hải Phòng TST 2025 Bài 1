@@ -1,0 +1,164 @@
+Cho 𝑛 điểm trên mặt phẳng tọa độ. Điểm thứ 𝑖 có tọa độ là (𝑥𝑖
+, 𝑦𝑖) (các điểm có thể
+trùng nhau). Hải vẽ 𝑚 hình chữ nhật lên mặt phẳng này, các hình chữ nhật có cạnh song
+song với một trong hai trục tọa độ. Hình chữ nhật thứ 𝑗 có tọa độ góc trái dưới là (𝑢𝑗1
+, 𝑣𝑗1)
+và tọa độ góc phải trên (𝑢𝑗2
+, 𝑣𝑗2).
+Yêu cầu: Với mỗi hình chữ nhật, hãy xác định số điểm nằm trên các cạnh của hình chữ
+nhật.
+
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define MAX 300100
+#define MAXQ 100100
+#define INF 1e18
+#define FOR(i,a,b) for(int i = (a);i < (b);i++)
+#define REP(i,a,b) for(int i = (a);i <= (b);i++)
+#define F first
+#define S second
+struct P{
+    int x,y;
+    bool operator<(const P &other) const{
+        if(x == other.x) return y < other.y;
+        return x < other.x;
+    }
+} a[MAX];
+int n,m; pair<P,P> qu[MAXQ];
+void loadMatrix(){
+    cin >> n;
+    FOR(i,1,n + 1) cin >> a[i].x >> a[i].y;
+    cin >> m;
+    FOR(i,0,m) cin >> qu[i].F.x >> qu[i].F.y >> qu[i].S.x >> qu[i].S.y;
+}
+namespace sub1{
+    bool check(){
+        return n <= 1000 && m <= 1000;
+    }
+    void solve(void){
+    FOR(po,0,m){
+        int x = qu[po].F.x;
+        int y = qu[po].F.y;
+        int i = qu[po].S.x;
+        int j = qu[po].S.y;
+        int cnt= 0;
+        REP(tk,1,n){
+            if((x == a[tk].x || i == a[tk].x) && (y <= a[tk].y && a[tk].y <= j)){
+                cnt++;
+                cerr << a[tk].x << ' ' << a[tk].y << '\n';
+            }
+            else if((y == a[tk].y || j == a[tk].y) && (x <= a[tk].x && a[tk].x <= i)){
+                cnt++;
+                cerr << a[tk].x << ' ' << a[tk].y << '\n';
+            }
+        }
+        cout << cnt << '\n';
+    }}
+}
+namespace sub3{
+    bool check(){
+        return 1;
+    }
+    int count_range(const vector<int> &v, int l, int r){
+        if(v.empty()) return 0;
+        auto it1 = lower_bound(v.begin(), v.end(), l);
+        auto it2 = upper_bound(v.begin(), v.end(), r);
+        return it2 - it1;
+    }
+
+    bool exist_point(map<int, vector<int>> &mp, int x, int y){
+        if(!mp.count(x)) return false;
+        auto &v = mp[x];
+        return binary_search(v.begin(), v.end(), y);
+    }
+    void solve(){
+        sort(a + 1, a + n + 1);
+        map<int, vector<int>> mpx, mpy;
+        REP(i,1,n){
+            mpx[a[i].x].push_back(a[i].y);
+            mpy[a[i].y].push_back(a[i].x);
+        }
+        FOR(po,0,m){
+            int x = qu[po].F.x;
+            int y = qu[po].F.y;
+            int i = qu[po].S.x;
+            int j = qu[po].S.y;
+            int ans = 0;
+            ans += count_range(mpx[x], y, j);
+            if(x != i)
+                ans += count_range(mpx[i], y, j);
+
+            ans += count_range(mpy[y], x, i);
+            if(y != j)
+                ans += count_range(mpy[j], x, i);
+            if(exist_point(mpx, x, y)) ans--;
+            if(y != j && exist_point(mpx, x, j)) ans--;
+            if(x != i && exist_point(mpx, i, y)) ans--;
+            if(x != i && y != j && exist_point(mpx, i, j)) ans--;
+
+            cout << ans << '\n';
+        }
+    }
+}
+namespace sub2{
+    const int LIM = 1000;
+    static int cnt[LIM+5][LIM+5];
+    static int prex[LIM+5][LIM+5];
+    static int prey[LIM+5][LIM+5];
+
+    bool check(){
+        REP(i,1,n){
+            if(a[i].x > LIM || a[i].y > LIM) return 0;
+        }
+        return 1;
+    }
+
+    void solve(){
+        REP(i,1,n){
+            cnt[a[i].x][a[i].y]++;
+        }
+        REP(x,1,LIM){
+            REP(y,1,LIM){
+                prex[x][y] = prex[x][y-1] + cnt[x][y];
+            }
+        }
+        REP(y,1,LIM){
+            REP(x,1,LIM){
+                prey[y][x] = prey[y][x-1] + cnt[x][y];
+            }
+        }
+        FOR(po,0,m){
+            int x = qu[po].F.x;
+            int y = qu[po].F.y;
+            int i = qu[po].S.x;
+            int j = qu[po].S.y;
+            if(x > i) swap(x, i);
+            if(y > j) swap(y, j);
+            int ans = 0;
+            ans += prex[x][j] - prex[x][y-1];
+            if(x != i)
+                ans += prex[i][j] - prex[i][y-1];
+            ans += prey[y][i] - prey[y][x-1];
+            if(y != j)
+                ans += prey[j][i] - prey[j][x-1];
+
+            ans -= cnt[x][y];
+            if(y != j) ans -= cnt[x][j];
+            if(x != i) ans -= cnt[i][y];
+            if(x != i && y != j) ans -= cnt[i][j];
+
+            cout << ans << '\n';
+        }
+    }
+}
+signed main(){
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    loadMatrix();
+    if(sub1::check()) sub1::solve();
+    else if (sub2::check()) sub2::solve();
+    else sub3::solve();
+
+//    if(sub3::check()) sub3::solve();
+}
