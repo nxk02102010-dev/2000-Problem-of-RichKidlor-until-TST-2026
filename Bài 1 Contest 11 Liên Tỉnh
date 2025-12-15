@@ -1,0 +1,41 @@
+An được phân công đi siêu thị mua các đồ dùng phục vụ cho buổi tham quan dã ngoại. Có 𝑛 món đồ 
+cần mua đánh số từ 1 tới 𝑛, món đồ thứ 𝑖 có trọng lượng là 𝑤𝑖. 
+Siêu thị có cho miễn phí những cái túi giống nhau với số lượng không hạn chế. Mỗi túi có thể chứa 
+được trọng lượng tối đa là 𝑞 (𝑞 ≥ 𝑤𝑖,∀𝑖:1 ≤ 𝑖 ≤ 𝑛). 
+Để tránh mua thừa hoặc sót các đồ dùng, An sẽ mua lần lượt các món đồ theo đúng thứ tự từ 1 tới 𝑛. 
+Tuy nhiên vì không muốn sử dụng quá nhiều túi, khi mua xong một món đồ, An sẽ cố gắng đưa nó 
+vào một túi đang dùng nặng nhất, sao cho khi đưa món đồ mới mua vào thì trọng lượng của túi đó 
+vẫn không vượt quá 𝑞. Trong trường hợp tất cả các túi đang dùng đều không thể chứa thêm món đồ 
+mới mua, An đưa món đồ đó vào một túi mới. Chú ý rằng khi một món đồ đã đưa vào túi, An sẽ 
+không lấy nó ra để chuyển sang túi khác vì việc này rất mất thời gian. 
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+signed main(){
+    freopen("PACKAGES.INP","r",stdin);
+    freopen("PACKAGES.OUT","w",stdout);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    int T;cin >> T;
+    while(T--){
+        int n,W;cin >> n >> W;
+        multiset<int> st;
+        int a[n + 1];
+        for(int i = 1;i <= n;i++) cin >> a[i];
+        for(int i =1;i <= n;i++){
+            if(st.empty()){st.insert(a[i]);continue;}
+            auto it = st.upper_bound(W - a[i]);
+            --it;
+            if(it == st.begin()) st.insert(a[i]);
+            else{
+                --it;
+                int v = *it;
+                st.erase(it);
+                st.insert(v + a[i]);
+            }
+        }
+        cout << st.size() << '\n';
+    }
+}
