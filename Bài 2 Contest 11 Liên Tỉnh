@@ -1,0 +1,46 @@
+Một tập hợp 𝐴 = {𝑎1,...,𝑎𝑘} gồm 𝑘 số tự nhiên khác nhau có tổng các phần tử là 𝑛 gọi là tập sinh 
+chính phương nếu tổng của bất kỳ k−1 phần tử trong A đều là số chính phương. 
+Ví dụ: Tập A={9, 34, 57, 78} gồm 𝑘 = 4 phần tử có tổng các phần tử 𝑛 = 178 là một tập sinh chính 
+phương vì tổng 3 số bất kì trong A đều là số chính phương: 
+• 9+34+57=100= 102 
+• 9+34+78=121= 112 
+• 9+57+78=144= 122 
+• 34+57+78=169=132 
+Yêu cầu: Cho hai số nguyên n và k, hãy xây dựng một tập A gồm 𝑘 số tự nhiên khác nhau có tổng 
+bằng 𝑛 và là một bộ sinh bình phương, hoặc cho biết rằng không tồn tại tập hợp như vậy? 
+
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+signed main(){
+    freopen("SQUARE.INP","r",stdin);
+    freopen("SQUARE.OUT","w",stdout);
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,k;cin >> n >> k;
+    vector<int> x(k);
+    bool ok = 0;
+    for(int b = 1;b <= 2000;b++){\
+        int s = 0;
+        for(int i = 0;i < k;i++){
+            x[i] = b + i;
+            s += x[i] * x[i];
+        }
+        if(s == (k - 1) * n){
+            ok = 1;
+            break;
+        }
+    }
+    if(!ok) {
+        cout << "NO\n";
+        return 0;
+    }
+    vector<int> a(k);
+    for(int i = 0;i < k;i++){
+        a[i] = n - x[i] * x[i];
+    }
+    set<int> st(a.begin(),a.end());
+    if(st.size() != k){cout <<"NO\n";return 0; }
+    cout << "YES\n";
+    for(int &i : a) cout << i << ' ';
+}
