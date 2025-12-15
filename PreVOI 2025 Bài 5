@@ -1,0 +1,80 @@
+Thành phố công nghệ Cyberland đang vận hành một hệ thống truyền tin đặc biệt gồm N trạm
+phát tín hiệu được đánh số từ 1 đến N. Các trạm được kết nối với nhau bởi M kênh truyền tin
+hai chiều, kênh truyền tin thứ i kết nối hai trạm ui,vi có độ trễ truyền tải là wi và tần số hoạt động là fi.
+Để gửi một gói tin từ trạm nguồn S đến trạm đích T, gói tin có thể đi qua một dãy các kênh truyền tin nối tiếp nhau. 
+Tổng thời gian mà gói tin cần để đi từ S đến T được tính bằng tổng các yếu tố sau:
+ Độ trễ đường truyền: Là tổng độ trễ w của tất cả các kênh mà gói tin đi qua.
+ Thời gian chuyển đổi tần số: Khi gói tin đi đến một trạm trung gian, nếu chuyển từ
+kênh có tần số fx sang kênh có tần số fy thì phải tốn thêm một khoảng thời gian bằng
+chênh lệch tần số giữa hai kênh, được tính bằng |fx - fy|.
+Yêu cầu: Biết rằng tại trạm nguồn và trạm kết thúc gói tin có thể ở bất kì tần số nào mà
+không tốn thêm thời gian chuyển đổi. Hãy tính thời gian ngắn nhất mà gói tin có thể được
+chuyển từ đến .
+
+
+
+#include<bits/stdc++.h>
+using namespace std;
+const int MAX = 300300;
+#define int long long
+struct E{
+    int v,w,f;
+};
+struct SS{
+    int w,f,u;
+    bool operator >(const SS &other) const{
+        return w > other.w;
+    }
+};
+int n,m,St,T;
+vector<E> g[MAX];
+void buildTree(){
+    cin >> n >> m >> St >> T;
+    int a,b,c,d;
+    for(int i = 0;i < m;i++){
+        cin >> a >> b >> c >> d;
+        g[a].push_back({b,c,d});
+        g[b].push_back({a,c,d});
+    }
+    return;
+}
+void Dijsktra(){
+    unordered_map<int,int> dis[n + 1];
+    priority_queue<SS,vector<SS>,greater<SS>> q;
+    dis[St][-1] = 0;
+    q.push({0,-1,St});
+    #define F first
+    #define S second
+    while(q.size()){
+        auto top = q.top();q.pop();
+        int f1 = top.f;
+        int w1 = top.w;
+        int u = top.u;
+        if(dis[u][f1] != w1) continue;
+        if(u == T){
+            cout << w1 << '\n';
+            return;
+        }
+        for(auto to : g[u]){
+            int v = to.v;
+            int w2 = to.w;
+            int f2 = to.f;
+            if(!dis[v].count(f2) || (dis[v][f2] > (f1 == -1 ? 0 : (abs(f1 - f2))) + w1 + w2)){
+                dis[v][f2] = (f1 == -1 ? 0 : (abs(f1 - f2))) + w1 + w2;
+                q.push({dis[v][f2],f2,v});
+            }
+        }
+    }
+    //cout <<-1;
+}
+void solve(void){
+    buildTree();
+    Dijsktra();
+    return;
+}
+signed main(){
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    solve();
+}
