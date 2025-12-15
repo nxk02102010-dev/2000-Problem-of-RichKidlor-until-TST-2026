@@ -1,0 +1,65 @@
+Tuấn đang chuẩn bị một trò chơi cho chương trình truyền hình như sau: Có một số người chơi được chọn và ngồi thành vòng tròn.
+Mỗi người có 2 lá cờ: một cờ xanh và một cờ đỏ. Khi có hiệu lệnh, tất cả mọi người sẽ đồng loạt phất lên đúng một lá cờ.
+Một cấu hình được coi là chiến thắng nếu:
+● Có đúng K người phất lá cờ màu xanh.
+● Giữa hai người phất cờ xanh liên tiếp trong vòng tròn có ít nhất P người phất cờ đỏ.
+Số người chơi có thể nằm trong khoảng từ L đến R. Ban sản xuất muốn biết đối với mỗi trường hợp (L, R, K, P) có bao nhiêu cách
+chiến thắng, tính trên tất cả số người chơi n thỏa mãn L ≤ n ≤ R, hai cách được coi là khác nhau nếu tồn tại một người phất lên cờ
+có màu khác.
+Cho q câu hỏi, mỗi câu hỏi gồm bốn số nguyên L, R, K, P. Với mỗi câu hỏi, hãy tính tổng số cấu hình chiến thắng xét trên tất cả n
+thỏa mãn L ≤ n ≤ R.
+Vì số lượng cấu hình có thể rất lớn, hãy in ra kết quả lấy dư với 10
+9 + 7.
+
+
+
+#include<bits/stdc++.h>
+using namespace std;
+#define FOR(i, a, b) for (int i = (a), _b = (b); i <= _b; i++)
+#define FORD(i, b, a) for (int i = (b), _a = (a); i >= _a; i--)
+#define REP(i, n) for (int i = 0, _n = (n); i < _n; i++)
+#define F first
+#define S second
+#define MAX   2000200
+const int MOD = (int)1e9 + 7;
+int frac[MAX + 1], finv[MAX + 1];
+int inverse(int x) {
+    int res = 1, mul = x, k = MOD - 2;
+    while (k > 0) {
+        if (k & 1) res = 1LL * res * mul % MOD;
+        mul = 1LL * mul * mul % MOD;
+        k >>= 1;
+    }
+    assert(1LL * res * x % MOD == 1);
+    return res;
+}
+void prepare(void) {
+    frac[0] = 1;
+    FOR(i, 1, MAX) frac[i] = 1LL * frac[i - 1] * i % MOD;
+    finv[MAX] = inverse(frac[MAX]);
+    FORD(i, MAX, 1) finv[i - 1] = 1LL * finv[i] * i % MOD;
+}
+int comb(int k, int n) {
+    return k > n ? 0 : 1LL * frac[n] * finv[k] % MOD * finv[n - k] % MOD;
+}
+int solvePrefix(int r, int k, int p) {
+    if (k == 0) return r;
+    if (k == 1) return 1LL * r * (r + 1) / 2 % MOD;
+    if (r < k + 1LL * k * p) return 0;
+    return (1LL * p * comb(k, r - k * p) + comb(k + 1, r - k * p + 1)) % MOD;
+}
+int solve(int l, int r, int k, int p) {
+    int res = solvePrefix(r, k, p) - solvePrefix(l - 1, k, p);
+    if (res < 0) res += MOD;
+    return res;
+}
+signed main(){
+    freopen("count.inp","r",stdin);
+    freopen("count.out","w",stdout);
+    prepare();
+    int q;cin >> q;
+    while(q--){
+        int l,r,k,p;cin >> l >> r >> k >> p;
+        cout << solve(l,r,k,p) << '\n';
+    }
+}
