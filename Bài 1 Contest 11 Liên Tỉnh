@@ -27,7 +27,6 @@ signed main(){
         for(int i =1;i <= n;i++){
             if(st.empty()){st.insert(a[i]);continue;}
             auto it = st.upper_bound(W - a[i]);
-            --it;
             if(it == st.begin()) st.insert(a[i]);
             else{
                 --it;
