@@ -1,0 +1,30 @@
+Cho N. Tìm số bước lớn nhất sao cho mỗi bước phải chia cho x sao cho : x là ước của N hiện tại,x phải chưa được sử dụng để chia.
+
+
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+signed main(){
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    int N;
+    cin >> N;
+    map<int,int> mp;
+    for(int p = 2; p*p <= N; p++){
+        while(N % p == 0){
+            mp[p]++;
+            N /= p;
+        }
+    }
+    if(N > 1) mp[N]++;
+    int ans = 0;
+    for(auto [p, a] : mp){
+        int x = 1;
+        while(a >= x){
+            a -= x;
+            ans++;
+            x++;
+        }
+    }
+    cout << ans << '\n';
+}
