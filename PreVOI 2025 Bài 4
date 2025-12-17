@@ -1,0 +1,66 @@
+Tàu thăm dò của Alice đang thực hiện một nhiệm vụ thu thập mẫu vật. Mẫu vật thứ
+ có khối lượng . Sau khi thu thập xong mẫu vật thứ , tàu
+thăm dò có thể thực hiện một trong hai hành động sau:
+1) Quay về trung tâm cất để bảo quản các mẫu vật đã thu thập;
+2) Tiếp tục di chuyển đến vị trí mẫu vật tiếp theo nếu còn, mẫu vật thứ . Hành
+động này chỉ thực hiện được nếu tổng khối lượng các mẫu vật mà tàu thăm dò đang
+mang không vượt quá .
+Cho biết là thời gian để tàu thăm dò di chuyển từ vị trí mẫu vật thứ đến vị trí
+mẫu vật thứ . Còn là thời gian để tàu thăm dò di chuyển từ vị trí trung
+tâm đến vị trí mẫu vật thứ cũng như là thời gian để tàu thăm dò di chuyển từ mẫu vật thứ
+về trung tâm. Alice muốn điều khiển tàu thăm dò, xuất phát từ trung tâm đi thu thập mẫu
+vật và cuối cùng kết thúc tại trung tâm với tổng thời gian nhỏ nhất. Giả thiết rằng, khi tàu
+thăm dò đã tới vị trí mẫu vật thì thời gian thu thập mẫu vật là không đáng kể.
+Yêu cầu: Có câu hỏi, mỗi câu hỏi tương ứng với một giá trị , hãy lập trình tính thời gian
+nhỏ nhất để thu thập mẫu vật theo yêu cầu.
+
+
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+const int INF = (int)4e18;
+
+int n;
+int m[200005], d[200005], g[200005];
+int M[200005], D[200005];
+int dp[200005];
+
+signed main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cin >> n;
+    for(int i = 1; i <= n; i++) cin >> m[i];
+    for(int i = 1; i < n; i++) cin >> d[i];
+    for(int i = 1; i <= n; i++) cin >> g[i];
+    for(int i = 1; i <= n; i++){
+        M[i] = M[i-1] + m[i];
+        D[i] = D[i-1] + (i > 1 ? d[i-1] : 0);
+    }
+    int q; 
+    cin >> q;
+    while(q--){
+        int W;
+        cin >> W;
+        multiset<int> S;
+        dp[0] = 0;
+        S.insert(dp[0] + g[1] - D[1]);
+        int L = 0;
+        for(int i = 1; i <= n; i++){
+            while(L < i && M[i] - M[L] > W){
+                auto it = S.find(dp[L] + g[L+1] - D[L+1]);
+                if(it != S.end()) S.erase(it);
+                L++;
+            }
+            if(S.empty()){
+                dp[i] = INF;
+            } else {
+                dp[i] = g[i] + D[i] + *S.begin();
+            }
+            if(i < n){
+                S.insert(dp[i] + g[i+1] - D[i+1]);
+            }
+        }
+        cout << dp[n] << '\n';
+    }
+    return 0;
+}
