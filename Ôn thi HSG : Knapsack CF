@@ -1,0 +1,29 @@
+Let's call the roundness of the number the number of zeros to which it ends.
+
+You have an array of n numbers. You need to choose a subset of exactly k numbers so that the roundness of the product of the selected numbers will be maximum possible.
+
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+signed main(){
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n,k;cin >> n >> k;
+    vector<int> a(n);
+    for(int &i : a) cin >> i;
+    vector<vector<int>> dp(k + 1, vector<int> (200 * 30,-1));
+    dp[0][0] = 0;
+    for(int x : a){
+        int t = 0,f = 0;
+        while(x % 2 == 0) t++,x/= 2;
+        while(x % 5 == 0) f++,x /= 5;
+        for(int i = k - 1;i >= 0;i--) for(int j = 0;j < 200 * 30;j++){
+            if(dp[i][j] != -1){
+                dp[i + 1][j + f] = max(dp[i + 1][j + f],dp[i][j] + t);
+            }
+        }
+    }
+    int ans = 0;
+    for(int i = 0;i < 200 * 30;i++) ans = max(ans,min(i,dp[k][i]));
+    cout << ans << '\n';
+}
