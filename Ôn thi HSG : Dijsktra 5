@@ -1,0 +1,84 @@
+Cho một đồ thị vô hướng gồm n đỉnh và m cạnh, mỗi cạnh có trọng số dương.
+Bốn đỉnh đặc biệt được cho trước: A, B, C, D.
+👤 Nhân vật 1: Aaron
+Aaron sẽ chọn một đường đi ngắn nhất từ đỉnh A đến đỉnh B
+(tức là tổng trọng số các cạnh trên đường đi là nhỏ nhất có thể).
+Nếu tồn tại nhiều đường đi ngắn nhất, Aaron có thể chọn bất kỳ một đường nào trong số đó.
+👤 Nhân vật 2: Hasun
+Sau khi Aaron đã chọn xong một đường đi ngắn nhất từ A đến B:
+Tất cả các cạnh thuộc đường đi của Aaron trở thành miễn phí (trọng số = 0).
+Các cạnh còn lại giữ nguyên trọng số ban đầu.
+Hasun cần đi từ C đến D với tổng chi phí nhỏ nhất.
+🎯 NHIỆM VỤ
+Hãy xác định chi phí nhỏ nhất mà Hasun có thể đạt được, trong trường hợp Aaron lựa chọn đường đi ngắn nhất sao cho Hasun được lợi nhất.
+
+
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define F first
+#define S second
+const int MAX = 100100,INF = 1e18;
+struct E{
+    int v,w,id;
+};
+vector<E> g[MAX],dag[MAX];
+int n,m,ans = INF,A,B,C,D;
+vector<int> distA,distB;
+vector<int> dijsktra(int s,const vector<int> &free){
+    vector<int> dist(n + 1,INF);
+    priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>> q;
+    q.push({0,s});
+    dist[s] = 0;
+    while(q.size()){
+        auto top = q.top();
+        q.pop();
+        int u = top.S;
+        int w1 = top.F;
+        for(auto e : g[u]){
+            int w2 = free[e.id] ? 0 : e.w;
+            if(dist[e.v] > w1 + w2){
+                dist[e.v] = w1 + w2;
+                q.push({dist[e.v],e.v});
+            }
+        }
+    }
+    return dist;
+}
+vector<int> cur,freeE;
+void dfs(int u){
+    if(u == B){
+        auto distC = dijsktra(C,freeE);
+        ans = min(ans,distC[D]);
+        return;
+    }
+    for(auto &e : dag[u]){
+        freeE[e.id] = 1;
+        dfs(e.v);
+        freeE[e.id] = 0;
+    }
+}
+signed main(){
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin >> n >> m;
+    cin >> A >> B >> C >> D;
+    for(int i = 0;i < m;i++){
+        int a,b,c;cin >> a >> b >> c;
+        g[a].push_back({b,c,i});
+        g[b].push_back({a,c,i});
+    }
+    distA = dijsktra(A,vector<int>(m,0));
+    distB = dijsktra(B,vector<int>(m,0));
+    int shor = distA[B];
+    for(int u = 1;u <= n;u++){
+        for(auto &e : g[u]){
+            if(distA[u] + e.w + distB[e.v] == shor){
+                dag[u].push_back(e);
+            }
+        }
+    }
+    freeE.assign(m,0);
+    dfs(A);
+    cout << (ans == INF ? -1 : ans) << '\n';
+}
