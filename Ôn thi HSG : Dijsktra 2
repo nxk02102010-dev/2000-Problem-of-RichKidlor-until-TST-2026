@@ -1,0 +1,58 @@
+Trên trục toạn độ OX. Có n điểm,điểm thứ i có giá trị là ci
+tại điểm i, ta có thể:
+đi sang i + 1 giá là R
+đi sang i - 1 giá là L
+đi sang nơi có ci = cj thì đi sang với giá trị là C
+tính đường đi có giá trị bé nhất từ S tới E.
+
+
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define F first
+#define S second
+const int MAX = 100100;
+int n,L,R,C,c[MAX],ST,EN;
+vector<pair<int,int>> g[MAX],gr[MAX];
+vector<int> d[MAX];
+signed main(){
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin >> n >> L >> R >> C;
+    cin >> ST >> EN;
+    vector<int> dist(n + 1,1e18);
+    for(int i = 1;i <= n;i++){
+        cin >> c[i];
+        g[i].push_back({i + 1,R});
+        g[i].push_back({i - 1,L});
+        d[c[i]].push_back(i);
+    }
+    priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>> q;
+    q.push({0,ST});
+    dist[ST] = 0;
+    while(q.size()){
+        auto top = q.top();q.pop();
+        int u = top.S;
+        int w1 = top.F;
+        if(dist[u] != w1) continue;
+        if(u == EN){
+            cout << w1 << '\n';
+            return 0;
+        }
+        for(auto to : g[u]){
+            int v = to.F;
+            int w2 = to.S;
+            if(dist[v] > w1 + w2){
+                dist[v] = w1 + w2;
+                q.push({dist[v],v});
+            }
+        }
+        for(int i : d[c[u]]){
+            if(i == u) continue;
+            if(dist[i] > w1 + C){
+                dist[i] = w1 + C;
+                q.push({dist[i],i});
+            }
+        }
+    }
+}
