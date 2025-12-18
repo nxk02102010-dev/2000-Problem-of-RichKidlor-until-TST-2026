@@ -1,0 +1,45 @@
+Cho đồ thị N đỉnh, M cạnh 1 chiều.
+Yêu cầu : với mỗi đỉnh i yêu cầu in ra đường đi ngắn nhất từ 1 tới i rồi tới 1. Nếu không có in ra -1.
+
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+const int MAX = 100100;
+int n,m;
+vector<pair<int,int>> g[MAX],gr[MAX];
+signed main(){
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin >> n >> m;
+    for(int i = 0;i < m;i++){
+        int a,b,c;cin >> a >> b >> c;
+        g[a].push_back({b,c});
+        gr[b].push_back({a,c});
+    }
+    auto dj = [&] (const vector<pair<int,int>> ad[]) -> vector<int> {
+        vector<int> dist(n + 1,1e18);
+        dist[1] = 0;
+        priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>> q;
+        q.push({0,1});
+        while(q.size()){
+            auto top = q.top();q.pop();
+            int u = top.second;
+            int w1 = top.first;
+            for(auto to : ad[u]) {
+                int v = to.first;
+                int w2 = to.second;
+                if(dist[v] > w1 + w2){
+                    dist[v] = w1 + w2;
+                    q.push({dist[v],v});
+                }
+            }
+        }
+        return dist;
+    };
+    vector<int> dj1 = dj(g);
+    vector<int> dj2 = dj(gr);
+    for(int i = 2;i <= n;i++){
+        if(dj1[i] == 1e18 || dj2[i] == 1e18) cout << -1 << '\n';
+        else cout << dj1[i] + dj2[i] << '\n';
+    }
+}
