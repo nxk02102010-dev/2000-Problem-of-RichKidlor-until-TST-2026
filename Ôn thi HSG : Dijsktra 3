@@ -1,0 +1,56 @@
+Dijsktra 2 giá trị ưu tiên L hơn C.
+
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define F first
+#define S second
+const int MAX = 100100;
+int n,m;
+struct E{
+    int v,l,c;
+    bool operator < (const E&other) const{
+        if(l != other.l) return l > other.l;
+        return c < other.c;
+    }
+};
+vector<E> g[MAX];
+signed main(){
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin >> n >> m;
+    for(int i = 0;i < m;i++){
+        int a,b,c,d;cin >> a >> b >> c >> d;
+        g[a].push_back({b,c,d});
+        g[b].push_back({a,c,d});
+    }
+    priority_queue<E> q;
+    vector<pair<int,int>> dist(n + 1,{1e18,0});
+    q.push({1,0,0});
+    dist[1].F = 0;
+    while(q.size()){
+        auto top = q.top();q.pop();
+        int u = top.v;
+        int l1 = top.l;
+        int c1 = top.c;
+        if(dist[u] != make_pair(l1,c1)) continue;
+        for(auto to : g[u]){
+            int v = to.v;
+            int l2 = to.l;
+            int c2 = to.c;
+            if(dist[v].F > l1 + l2){
+                dist[v] = {l1 + l2,c1 + c2};
+                q.push({v,l1 + l2,c1 + c2});
+            }
+            else if(dist[v].F == l1 + l2 && dist[v].S < c1 + c2){
+                dist[v].S = c1 + c2;
+                q.push({v,l1 + l2,c1 + c2});
+            }
+        }
+    }
+    //cout << (dist[n] == 1e18 ? -1 : dist[n]) << '\n';
+    if(dist[n].F == 1e18) cout << -1;
+    else{
+        cout << dist[n].F << ' ' << dist[n].S;
+    }
+}
