@@ -1,0 +1,48 @@
+Ta có đồ thị n đỉnh và m cạnh vô hướng
+có k điểm phát sóng với R là bán kính. Ta có thể hiểu là như thế. hãy viết ra dãy bit với việc 1 là điểm đó có được bao phủ bởi 1 điểm phát nào đó, và 0 dành cho những đỉnh không được bao phủ
+(hay có thể hiểu là không nằm trong 1 bán kính của 1 điểm phát nào hết).
+
+
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define F first
+#define S second
+const int MAX = 300200,INF = 1e18;
+vector<int> g[MAX];
+pair<int,int> qu[MAX * 2];
+int n,m,bit[MAX],k;
+priority_queue<pair<int,int>> q;
+void multi_bfs(){
+    vector<int> dist(n + 1,-INF);
+    for(int i = 0;i < k;i++)dist[qu[i].F] = max(dist[qu[i].F], qu[i].S);
+    while(!q.empty()){
+        auto top = q.top();q.pop();
+        int u = top.S;
+        int r = top.F;
+        if(r != dist[u]) continue;
+        if(r >= 0) bit[u] = 1;
+        if(r < 0) continue;
+        for(int v : g[u]){
+            if(r - 1 > dist[v]){
+                dist[v] = r - 1;
+                q.push({dist[v],v});
+            }
+        }
+    }
+}
+signed main(){
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin >> n >> m >> k;
+    for(int i = 0;i < m;i++){
+        int a,b;cin >> a >> b;
+        g[a].push_back(b);
+        g[b].push_back(a);
+    }
+    for(int i = 0;i < k;i++){cin >> qu[i].F >> qu[i].S;q.push({qu[i].S,qu[i].F});}
+    multi_bfs();
+    for(int i = 1;i <= n;i++){
+        cout << bit[i];
+    }
+}
