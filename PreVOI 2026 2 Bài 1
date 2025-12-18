@@ -1,0 +1,109 @@
+Thành phố của Tuấn gồm N giao lộ (đánh số từ 1 đến N) được nối bởi M con đường hai
+chiều, tất cả đều có cùng độ dài. Con đường thứ i nối hai giao lộ ui và vi
+. Bảo đảm rằng có
+thể di chuyển giữa mọi cặp giao lộ bằng một dãy các con đường.
+Một số giao lộ có đặt đèn hiệu. Khi bật GPS, đồng hồ sẽ hiển thị, đối với mỗi đèn hiệu, độ
+dài đường đi ngắn nhất từ giao lộ bạn đang đứng đến giao lộ chứa đèn hiệu đó.
+Yêu cầu: Hãy xác định những giao lộ mà Tuấn có thể đang đứng.
+
+
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+const int MAX = 50004,INF = 1e18;
+vector<int> g[MAX],bea;
+int n,m,a[MAX],k;
+void buildGraph(){
+    cin >> n >> m;
+    for(int i = 0;i < m;i++){
+        int a,b;cin >> a >> b;
+        g[a].push_back(b);
+        g[b].push_back(a);
+    }
+
+    for(int i = 1;i <= n;i++){
+        cin >> a[i];
+        if(a[i] != -1) k++,bea.push_back(i);
+    }
+}
+namespace sub1{
+    bool check(){
+        return k <= 100;
+    }
+    void solve(void){
+        vector<int> cnt(n + 1,0),ans;
+        for(int b : bea){
+            queue<int> q;
+            q.push(b);
+            vector<int> dist(n + 1,INF);
+            dist[b] = 0;
+            while(!q.empty()){
+                int u = q.front();q.pop();
+                if(dist[u] > a[b]) continue;
+                if(dist[u] == a[b]){
+                    cnt[u]++;
+                }
+                for(int v : g[u]){
+                    if(dist[v] == INF){
+                        dist[v] = dist[u] + 1;
+                        q.push(v);
+                    }
+                }
+            }
+        }
+        for(int i = 1;i <= n;i++) if(cnt[i] == k) ans.push_back(i);
+        cout << ans.size() << '\n';
+        for(int &i : ans) cout << i << ' ';
+    }
+}
+namespace sub2{
+    void solve(void){
+        int s = bea[0];
+        vector<int> dist(n + 1,INF);
+        queue<int> q;
+        dist[s] = 0;
+        q.push(s);
+        while(!q.empty()){
+            int u = q.front();q.pop();
+            for(int v : g[u]){
+                if(dist[v]== INF){
+                    dist[v] = dist[u] + 1;
+                    q.push(v);
+                }
+            }
+        }
+        vector<int> ans;
+        for(int x = 1;x <= n;x++){
+            if(dist[x] != a[s]) continue;
+            vector<int> d(n + 1,-1);
+            queue<int> qq;
+            qq.push(x);
+            d[x] = 0;
+            bool ok = 1;
+            while(!qq.empty()){
+                int u = qq.front();qq.pop();
+                if(a[u] != -1 && d[u] != a[u]) {
+                    ok = 0;break;
+                }
+                for(int v : g[u]){
+                    if(d[v] == -1){
+                        d[v] = d[u] + 1;
+                        qq.push(v);
+                    }
+                }
+            }
+            if(ok) ans.push_back(x);
+        }
+        cout << ans.size() << '\n';
+        for(int &i : ans) cout << i << ' ';
+    }
+}
+signed main(){
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    buildGraph();
+    if(sub1::check()) sub1::solve();
+    else sub2::solve();
+}
