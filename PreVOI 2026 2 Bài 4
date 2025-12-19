@@ -1,0 +1,55 @@
+Cho một xâu S chỉ gồm các kí tự chữ cái thường (‘a' đến ‘z’). Một xâu P được gọi là nén gần
+đúng với lỗi e nếu khoảng cách Hamming của xâu S với xâu T không vượt quá e kí tự, trong
+đó T là tiền tố của xâu P +P++P có độ dài bằng độ dài xâu S.
+Với một xâu W, cần tìm cách thay thế không quá k kí tự để nhận được W' là xâu nén gần
+đúng của xâu S với lỗi nhỏ nhất.
+Yêu cầu: Cho xâu S và số nguyên k, với mỗi xâu trong m xâu W₂, W₂..,Wm, hãy cách thay
+đổi không quá k kí tự để nhận được xâu mới là xâu nén gần đúng của xâu S với lỗi là nhỏ
+nhất.
+
+
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+signed main(){
+    freopen("zip.inp","r",stdin);
+    freopen("zip.out","w",stdout);
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    int m,k;cin >> m >> k;string S;cin >> S;
+    int n = S.size();
+    while(m --){
+        string W;cin >> W;
+        int l = W.size();
+        vector<vector<int>> cnt(l,vector<int> (26));
+        vector<int> tot(l);
+        for(int i = 0;i < n;i++){
+            int j = i % l;
+            cnt[j][S[i] - 'a'] ++;
+            tot[j]++;
+        }
+        vector<int> f(k + 1,1e18);
+        f[0] = 0;
+        for(int j = 0;j < l;j++){
+            vector<int> nf(k + 1,1e18);
+            int orz = W[j] - 'a';
+            for(int us = 0;us <= k;us++){
+                if(f[us] == 1e18) continue;
+                for(int c = 0;c < 26;c++){
+                    int add = (c != orz);
+                    if(us + add > k) continue;
+                    int cost = tot[j] - cnt[j][c];
+                    nf[us + add] = min(nf[us + add],f[us] + cost);
+                }
+            }
+            f.swap(nf);
+        }
+        int ans = 1e18;
+        for(int i = 0;i <= k;i++){
+            ans = min(ans,f[i]);
+        }
+        cout << ans << '\n';
+    }
+}
