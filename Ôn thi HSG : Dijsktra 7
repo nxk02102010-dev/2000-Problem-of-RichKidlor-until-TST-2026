@@ -1,0 +1,150 @@
+Nơi thành phố bạn sống đặc biệt có những con đường cao tít tựa Đà Lạt. N căn nhà nơi đây có thể đến được với nhau bằng M con đường hai chiều, con đường thứ i có độ dài 
+w_i và độ cao là c_i. Căn nhà cuối cùng (thứ N) trên đỉnh núi là nơi bạn cần đến, từ căn nhà số 1 bạn cần đến đó nhanh nhất có thể nhưng điều đó không thành vấn đề vì bạn đã quá rành đường nơi đây rồi.
+Điều bạn cần là tìm con đường có thể tối đa hoá độ cao giữa đường cao nhất và đường thấp nhất mà vẫn đảm bảo về thời gian, bởi leo trèo là việc bạn thích nhất. Liệu bạn có biết chênh lệch tối đa đó không?
+
+
+#include <bits/stdc++.h>
+using namespace std;
+//Coder:RichKidlor in 10IT CTL_DL
+//Contest : Codeforces,Vnoi,Clueoj,TLOI
+#define FOR(i,a,b) for(int i = (a);i < (b);i++)
+#define REP(i,a,b) for(int i = (a);i <= (b);i++)
+#define REPD(i,a,b) for(int i = (a); i >= (b);i--)
+#define FORD(i,a,b) for(int i = (a);i > (b);i--)
+#define F first
+#define S second
+#define pb push_back
+#define BIT(mask,i) (mask) & (1 << (i))
+#define CHECK(mask,i) (((mask) >> (i)) & 1)
+#define all(x) (x).begin(), (x).end()
+#define sz(x) (int)(x).size()
+#define pii pair<int,int>
+#define pil pair<int,ll>
+#define pll pair<ll,ll>
+#define allr(x) (x).rbegin(),(x).rend()
+#define pli pair<ll,int>
+#define nocout cout << "NO" << '\n'
+#define yescout cout << "YES" << '\n'
+#define INF (ll) 1e18
+#define iINF 1e9
+#define i128 __int128_t
+#define minusone cout << -1 << '\n'
+#define ar array
+#define EP emplace_back
+#define I ios::sync_with_stdio(0);
+#define LOVE cin.tie(0);
+#define GB cout.tie(0);
+//#include<ext/pb_ds/assoc_container.hpp>
+//using namespace __gnu_pbds;
+//template<class T> using ordered_set = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
+#define STR(x) #x
+#define FileName(x) STR(x)
+//#define File chondua
+#pragma GCC optimize("Ofast,unroll-loops")
+#pragma GCC target("avx2")
+#define int long long
+//#define ll __int128
+#define ll long long
+template<class X,class Y>bool maximize (X &x,const Y &y){if(x < y){x = y;return 1;}return 0;}
+template<class X,class Y> bool minimize (X &x,const Y &y){if(x > y){x = y;return 1;}return 0;}
+namespace Love{
+const int MAX = 200100;
+struct E{
+    int v,w,c;
+};
+struct T{
+    int v,w,mi,mx;
+};
+struct cmp{
+    bool operator()(const T&a,const T&b) const{
+        if(a.w == b.w) return a.mx - a.mi > b.mx - b.mi;
+        return a.w < b.w;
+    }
+};
+vector<E> g[MAX];
+vector<pair<int,int>> g2[MAX];
+int n,m;
+void solve(void){
+    cin >> n >> m;
+    FOR(i,0,m){
+        int a,b,c,d;cin >> a >> b >> c >> d;
+        g[a].pb({b,c,d});
+        g[b].pb({a,c,d});
+    }
+    vector<int> dist(n + 1,INF);
+    vector<int> diff(n + 1,INF);
+    priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>> q;
+    dist[1] = 0;
+    q.push({0,1});
+    while(sz(q)){
+        auto top = q.top();q.pop();
+        int u = top.S;
+        int w1 = top.F;
+        if(dist[u] != w1) continue;
+        for(auto to : g[u]){
+            int v = to.v;
+            int w2= to.w;
+            if(dist[v] > w1 + w2){
+                dist[v] = w1 + w2;
+                q.push({dist[v],v});
+            }
+        }
+    }
+    vector<int> id(n + 1);
+    REP(u,1,n){
+        for(auto to : g[u]){
+            int v = to.v;
+            int w = to.w;
+            if(dist[v] == dist[u] + w){
+                g2[u].pb({v,to.c});
+                id[v]++;
+            }
+        }
+    }
+    queue<int> nq;
+    vector<int> topo;
+    REP(u,1,n) if(id[u] == 0) nq.push(u);
+    while(sz(nq)){
+        int u = nq.front();nq.pop();
+        topo.pb(u);
+        for(auto to : g2[u]){
+            if(--id[to.F] == 0){
+                nq.push(to.F);
+            }
+        }
+    }
+    vector<int> order(n);
+    iota(order.begin(), order.end(), 1);
+    sort(order.begin(), order.end(),[&](int a, int b){return dist[a] < dist[b];});
+    vector<int> mi(n + 1, INF);
+    vector<int> mx(n + 1, -INF);
+    for (int u : order) {
+        if (mx[u] == -INF && u != 1) continue;
+        for (auto to : g2[u]) {
+            int v = to.first;
+            int c = to.second;
+            int new_mx = max(mx[u], c);
+            int new_mi = min(mi[u], c);
+            if (mx[v] == -INF || new_mx - new_mi > mx[v] - mi[v]) {
+                mx[v] = new_mx;
+                mi[v] = new_mi;
+            }
+        }
+    }
+    cout << mx[n] - mi[n] << '\n';
+}
+}
+signed main(){
+    //freopen("DoiCuuTroIT.Inp","r",stdin);
+    //freopen("DoiCuuTroIT.Out","w",stdout);
+#ifdef File
+    freopen(FileName(File)".inp","r",stdin);
+    freopen(FileName(File)".out","w",stdout);
+#endif
+    I LOVE GB;
+    ll t = 1;//cin >> t;
+    while(t--)
+    Love :: solve();
+    return 0;
+}
+
