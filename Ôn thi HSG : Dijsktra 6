@@ -1,0 +1,64 @@
+Châu đang muốn quảng bá dòng xe điện Cessla của mình bằng cách giới thiệu mạng lưới các trạm sạc của Cessla. Anh ấy đã xác định được N(1 <= N <= 2 * 10 ^ 5) điểm quan tâm được đánh số từ 
+1 đến N, trong đó C(1 <= C <= N) trạm đầu tiên là các trạm sạc và còn lại là các điểm du lịch. Các điểm này được kết nối với nhau bởi M(1 <= M <= 10 ^ 5) đường hai chiều, đường thứ i nối hai điểm phân biệt 
+u_i và v_i và có độ dài w_i dặm .
+Cessla có thể di chuyển với quãng đường lên tới 2 * R dặm (1 <= R <= 10 ^ 9) trong một lần sạc, cho phép nó đến bất kỳ điểm đến nào trong phạm vi 
+R dặm tính từ trạm sạc. Một điểm đến được coi là kết nối tốt nếu có thể đến được điểm đến đó từ ít nhất K trạm sạc riêng biệt. Nhiệm vụ của bạn là hỗ trợ John xác định các điểm đến du lịch có kết nối tốt.
+
+
+
+#include<bits/stdc++.h>
+using namespace std;
+#define F first
+#define S second
+const long long MAX = 200100;
+const long long INF = 1e18;
+vector<pair<long long,long long>> g[MAX];
+long long n,m,C,R,K;
+struct E{
+    long long v,w,p;
+    bool operator<(const E&other) const{return w > other.w;}
+};
+void buildGraph(){
+    cin >> n >> m >> C >> R >> K;
+    for(long long i = 0;i < m;i++){
+        long long a,b,c;cin >> a >> b >> c;
+        g[a].push_back({b,c});
+        g[b].push_back({a,c});
+    }
+}
+void solve(){
+    priority_queue<E> q;
+    for(long long i = 1;i <= C;i++){
+        q.push({i,0,i});
+    }
+    vector<long long> sc[n + 1];
+    while(!q.empty()){
+        auto top = q.top();q.pop();
+        long long u = top.v;
+        long long w1 = top.w;
+        long long p1 = top.p;
+        bool ok = 1;
+        if(sc[u].size() >= K || w1 > R) continue;
+        for(long long v : sc[u]){
+            if(v == p1){ok = 0;break;}
+        }
+        if(!ok) continue;
+        sc[u].push_back(p1);
+        for(auto &to : g[u]){
+            long long v = to.F;
+            long long w2 = to.S;
+            if(R >= w1 + w2){
+                q.push({v,w1 + w2,p1});
+            }
+        }
+    }
+    vector<long long> ans;
+    for(long long i = C + 1;i <= n;i++) if(sc[i].size() >= K) ans.push_back(i);
+    cout << ans.size() << '\n';
+    for(long long i : ans ) cout << i << ' ';
+}
+signed main(){
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    buildGraph();
+    solve();
+}
