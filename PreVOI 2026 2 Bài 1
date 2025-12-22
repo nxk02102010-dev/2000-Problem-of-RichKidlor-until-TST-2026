@@ -1,10 +1,4 @@
-Thành phố của Tuấn gồm N giao lộ (đánh số từ 1 đến N) được nối bởi M con đường hai
-chiều, tất cả đều có cùng độ dài. Con đường thứ i nối hai giao lộ ui và vi
-. Bảo đảm rằng có
-thể di chuyển giữa mọi cặp giao lộ bằng một dãy các con đường.
-Một số giao lộ có đặt đèn hiệu. Khi bật GPS, đồng hồ sẽ hiển thị, đối với mỗi đèn hiệu, độ
-dài đường đi ngắn nhất từ giao lộ bạn đang đứng đến giao lộ chứa đèn hiệu đó.
-Yêu cầu: Hãy xác định những giao lộ mà Tuấn có thể đang đứng.
+https://oj.clue.edu.vn/problem/prevoi26_c2_cross
 
 
 
