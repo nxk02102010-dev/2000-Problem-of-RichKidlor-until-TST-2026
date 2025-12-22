@@ -1,15 +1,4 @@
-Thành phố công nghệ Cyberland đang vận hành một hệ thống truyền tin đặc biệt gồm N trạm
-phát tín hiệu được đánh số từ 1 đến N. Các trạm được kết nối với nhau bởi M kênh truyền tin
-hai chiều, kênh truyền tin thứ i kết nối hai trạm ui,vi có độ trễ truyền tải là wi và tần số hoạt động là fi.
-Để gửi một gói tin từ trạm nguồn S đến trạm đích T, gói tin có thể đi qua một dãy các kênh truyền tin nối tiếp nhau. 
-Tổng thời gian mà gói tin cần để đi từ S đến T được tính bằng tổng các yếu tố sau:
- Độ trễ đường truyền: Là tổng độ trễ w của tất cả các kênh mà gói tin đi qua.
- Thời gian chuyển đổi tần số: Khi gói tin đi đến một trạm trung gian, nếu chuyển từ
-kênh có tần số fx sang kênh có tần số fy thì phải tốn thêm một khoảng thời gian bằng
-chênh lệch tần số giữa hai kênh, được tính bằng |fx - fy|.
-Yêu cầu: Biết rằng tại trạm nguồn và trạm kết thúc gói tin có thể ở bất kì tần số nào mà
-không tốn thêm thời gian chuyển đổi. Hãy tính thời gian ngắn nhất mà gói tin có thể được
-chuyển từ đến .
+https://oj.clue.edu.vn/problem/prevoi26_message
 
 
 
