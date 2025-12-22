@@ -1,6 +1,4 @@
-Ta có đồ thị n đỉnh và m cạnh vô hướng
-có k điểm phát sóng với R là bán kính. Ta có thể hiểu là như thế. hãy viết ra dãy bit với việc 1 là điểm đó có được bao phủ bởi 1 điểm phát nào đó, và 0 dành cho những đỉnh không được bao phủ
-(hay có thể hiểu là không nằm trong 1 bán kính của 1 điểm phát nào hết).
+https://oj.vnoi.info/problem/vr_dijkstra_powerplant
 
 
 
