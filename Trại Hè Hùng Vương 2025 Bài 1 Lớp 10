@@ -1,14 +1,4 @@
-Bạn Việt mới tạo ra 𝑛 game cho các bạn học sinh tham gia Trại hè Hùng Vương,
-game thứ 𝑖 có độ hấp dẫn là 𝑘𝑖
-. Bạn Nam dành 𝑡 đơn vị thời gian sau ngày thi để chơi
-các game này. Nam thử lần lượt từng game theo thứ tự từ 1 đến 𝑛 khi chưa hết thời
-gian, mỗi game đều là mới với Nam, nên bạn ấy có hai lựa chọn sau:
-- Xem tựa game và chơi hết game đó sẽ tốn 𝑎 đơn vị thời gian;
-- Chỉ xem tựa game mà không chơi thì sẽ tốn 𝑏 đơn vị thời gian.
-Mỗi game nếu chơi hết thì sẽ nhận được độ hấp dẫn của game đó, nếu chơi chưa
-xong thì không nhận được độ hấp dẫn nào. Chỉ khi đã xem tựa game thứ 𝑖 hoặc chơi
-game 𝑖 thì Nam mới có thể chuyển sang game thứ 𝑖 + 1.
-Yêu cầu: Tính độ hấp dẫn tối đa mà Nam nhận được sau khi chơi.
+https://oj.clue.edu.vn/problem/thhv25_game
 
 
 #include<bits/stdc++.h>
