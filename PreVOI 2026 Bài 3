@@ -1,15 +1,5 @@
-Tuấn đang chuẩn bị một trò chơi cho chương trình truyền hình như sau: Có một số người chơi được chọn và ngồi thành vòng tròn.
-Mỗi người có 2 lá cờ: một cờ xanh và một cờ đỏ. Khi có hiệu lệnh, tất cả mọi người sẽ đồng loạt phất lên đúng một lá cờ.
-Một cấu hình được coi là chiến thắng nếu:
-● Có đúng K người phất lá cờ màu xanh.
-● Giữa hai người phất cờ xanh liên tiếp trong vòng tròn có ít nhất P người phất cờ đỏ.
-Số người chơi có thể nằm trong khoảng từ L đến R. Ban sản xuất muốn biết đối với mỗi trường hợp (L, R, K, P) có bao nhiêu cách
-chiến thắng, tính trên tất cả số người chơi n thỏa mãn L ≤ n ≤ R, hai cách được coi là khác nhau nếu tồn tại một người phất lên cờ
-có màu khác.
-Cho q câu hỏi, mỗi câu hỏi gồm bốn số nguyên L, R, K, P. Với mỗi câu hỏi, hãy tính tổng số cấu hình chiến thắng xét trên tất cả n
-thỏa mãn L ≤ n ≤ R.
-Vì số lượng cấu hình có thể rất lớn, hãy in ra kết quả lấy dư với 10
-9 + 7.
+https://oj.clue.edu.vn/problem/prevoi26_count
+Code này đúng 98/100 điểm. Nếu có thể AC hãy liên lạc Khánh nhé.
 
 
 
