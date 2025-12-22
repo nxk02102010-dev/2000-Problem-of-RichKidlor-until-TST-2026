@@ -1,16 +1,4 @@
-Cho một đồ thị vô hướng gồm n đỉnh và m cạnh, mỗi cạnh có trọng số dương.
-Bốn đỉnh đặc biệt được cho trước: A, B, C, D.
-👤 Nhân vật 1: Aaron
-Aaron sẽ chọn một đường đi ngắn nhất từ đỉnh A đến đỉnh B
-(tức là tổng trọng số các cạnh trên đường đi là nhỏ nhất có thể).
-Nếu tồn tại nhiều đường đi ngắn nhất, Aaron có thể chọn bất kỳ một đường nào trong số đó.
-👤 Nhân vật 2: Hasun
-Sau khi Aaron đã chọn xong một đường đi ngắn nhất từ A đến B:
-Tất cả các cạnh thuộc đường đi của Aaron trở thành miễn phí (trọng số = 0).
-Các cạnh còn lại giữ nguyên trọng số ban đầu.
-Hasun cần đi từ C đến D với tổng chi phí nhỏ nhất.
-🎯 NHIỆM VỤ
-Hãy xác định chi phí nhỏ nhất mà Hasun có thể đạt được, trong trường hợp Aaron lựa chọn đường đi ngắn nhất sao cho Hasun được lợi nhất.
+https://oj.vnoi.info/problem/vr_dijkstra_tunnel
 
 
 
