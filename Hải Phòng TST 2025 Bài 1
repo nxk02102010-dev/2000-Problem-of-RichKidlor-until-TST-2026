@@ -1,12 +1,4 @@
-Cho 𝑛 điểm trên mặt phẳng tọa độ. Điểm thứ 𝑖 có tọa độ là (𝑥𝑖
-, 𝑦𝑖) (các điểm có thể
-trùng nhau). Hải vẽ 𝑚 hình chữ nhật lên mặt phẳng này, các hình chữ nhật có cạnh song
-song với một trong hai trục tọa độ. Hình chữ nhật thứ 𝑗 có tọa độ góc trái dưới là (𝑢𝑗1
-, 𝑣𝑗1)
-và tọa độ góc phải trên (𝑢𝑗2
-, 𝑣𝑗2).
-Yêu cầu: Với mỗi hình chữ nhật, hãy xác định số điểm nằm trên các cạnh của hình chữ
-nhật.
+https://oj.clue.edu.vn/problem/hp_tst_25_a
 
 
 #include<bits/stdc++.h>
