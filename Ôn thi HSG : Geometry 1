@@ -1,5 +1,4 @@
-Có N vị trí trên hệ trục tọa độ Oxy, chúng nối với nhau tạo thành 1 hình đa giác lồi. Có M truy vấn với mỗi truy vẫn cho 1 điểm và cần tìm xem điểm này có nằm trong đa giác hay không nếu có in ra 1
-ngược lại in ra 0.
+https://oj.vnoi.info/problem/geo_p2_a
 
 
 #include <bits/stdc++.h>
