@@ -1,6 +1,4 @@
-Nơi thành phố bạn sống đặc biệt có những con đường cao tít tựa Đà Lạt. N căn nhà nơi đây có thể đến được với nhau bằng M con đường hai chiều, con đường thứ i có độ dài 
-w_i và độ cao là c_i. Căn nhà cuối cùng (thứ N) trên đỉnh núi là nơi bạn cần đến, từ căn nhà số 1 bạn cần đến đó nhanh nhất có thể nhưng điều đó không thành vấn đề vì bạn đã quá rành đường nơi đây rồi.
-Điều bạn cần là tìm con đường có thể tối đa hoá độ cao giữa đường cao nhất và đường thấp nhất mà vẫn đảm bảo về thời gian, bởi leo trèo là việc bạn thích nhất. Liệu bạn có biết chênh lệch tối đa đó không?
+https://oj.vnoi.info/problem/vr_dijkstra_cessla
 
 
 #include <bits/stdc++.h>
