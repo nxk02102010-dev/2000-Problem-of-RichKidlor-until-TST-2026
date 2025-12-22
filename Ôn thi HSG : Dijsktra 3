@@ -1,5 +1,4 @@
-Dijsktra 2 giá trị ưu tiên L hơn C.
-
+https://oj.vnoi.info/problem/vr_dijkstra_beutyroads
 
 #include<bits/stdc++.h>
 using namespace std;
