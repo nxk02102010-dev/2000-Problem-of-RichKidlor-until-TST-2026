@@ -1,0 +1,51 @@
+https://oj.vnoi.info/problem/geo_p2_b
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define F first
+#define S second
+struct P{
+    int x,y;
+};
+int n,k;
+P I;
+pair<P,P> a[100100];
+double dist(P A,P B,P O){
+    double dx = B.x - A.x;
+    double dy = B.y - A.y;
+    double t = ((O.x - A.x)*dx + (O.y - A.y)*dy) / (dx*dx + dy*dy);
+    t = max(0.0, min(1.0, t));
+    double px = A.x + t*dx;
+    double py = A.y + t*dy;
+    return (px - O.x) * (px - O.x) + (py - O.y) * (py - O.y);
+}
+bool chk(int R){
+    vector<int> debug;
+    int cnt = 0;
+    for(int i = 0;i < n;i++){
+        P fro = {a[i].F.x,a[i].F.y};
+        P bac = {a[i].S.x,a[i].S.y};
+        if(dist(fro,bac,I) <= R * R) cnt++,debug.push_back(i);
+    }
+    return cnt <= k;
+}
+signed main(){
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    cin >> I.x >> I.y;
+    cin >> n >> k;
+    for(int i = 0;i < n;i++){
+        cin >> a[i].F.x >> a[i].F.y >> a[i].S.x >> a[i].S.y;
+    }
+    int l = 0,r = 1e9,ans = -1;
+    while(l <= r){
+        int m = (l + r) >> 1;
+        if(chk(m)){
+            l = m + 1;
+            ans = m;
+            //cout <<"ans : " << ans << '\n';
+        }
+        else r = m - 1;
+    }
+    cout << ans << '\n';
+}
