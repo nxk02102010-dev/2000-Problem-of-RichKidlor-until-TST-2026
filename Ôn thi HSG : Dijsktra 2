@@ -1,9 +1,4 @@
-Trên trục toạn độ OX. Có n điểm,điểm thứ i có giá trị là ci
-tại điểm i, ta có thể:
-đi sang i + 1 giá là R
-đi sang i - 1 giá là L
-đi sang nơi có ci = cj thì đi sang với giá trị là C
-tính đường đi có giá trị bé nhất từ S tới E.
+https://oj.vnoi.info/problem/vr_dijkstra_pcolor
 
 
 
