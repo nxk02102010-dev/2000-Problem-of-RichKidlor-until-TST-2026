@@ -1,12 +1,4 @@
-Cho một xâu S chỉ gồm các kí tự chữ cái thường (‘a' đến ‘z’). Một xâu P được gọi là nén gần
-đúng với lỗi e nếu khoảng cách Hamming của xâu S với xâu T không vượt quá e kí tự, trong
-đó T là tiền tố của xâu P +P++P có độ dài bằng độ dài xâu S.
-Với một xâu W, cần tìm cách thay thế không quá k kí tự để nhận được W' là xâu nén gần
-đúng của xâu S với lỗi nhỏ nhất.
-Yêu cầu: Cho xâu S và số nguyên k, với mỗi xâu trong m xâu W₂, W₂..,Wm, hãy cách thay
-đổi không quá k kí tự để nhận được xâu mới là xâu nén gần đúng của xâu S với lỗi là nhỏ
-nhất.
-
+https://oj.clue.edu.vn/problem/prevoi26_c2_zip
 
 
 #include<bits/stdc++.h>
