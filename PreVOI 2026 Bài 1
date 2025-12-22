@@ -1,36 +1,4 @@
-Cho một bảng n × m cùng với k mũi tên song song với cạnh của bảng. Mỗi mũi tên sẽ đi qua một số ô của bảng và được biểu diễn
-bởi 2 ô (x1
-, y1),(x2
-, y2) lần lượt là ô bắt đầu và kết thúc của mũi tên. Xét một mũi tên bắt đầu tại (x1
-, y1) và kết thúc tại (x2
-, y2), ta
-định nghĩa:
-● Mũi tên thuộc loại U nếu x1 > x2
-, y1 = y2
-.
-● Mũi tên thuộc loại R nếu x1 = x2
-, y1 < y2
-.
-● Mũi tên thuộc loại D nếu x1 < x2
-, y1 = y2
-.
-● Mũi tên thuộc loại L nếu x1 = x2
-, y1 > y2
-.
-Đề bài đảm bảo rằng cả k mũi tên đều thuộc 1 trong 4 loại trên. Dễ thấy mỗi mũi tên đều là một đoạn thẳng, mỗi mũi tên sẽ
-"chiếm" mọi ô nằm trên đoạn thẳng của mũi tên, đề bài đảm bảo rằng mỗi ô chỉ bị "chiếm" bởi tối đa 1 mũi tên.
-Nhiệm vụ của bạn là phải bỏ được tất cả k mũi tên ra khỏi bảng sau đúng k lượt chơi. Tại mỗi lượt chơi bạn sẽ được bỏ đúng một
-mũi tên nếu mũi tên đó thoả mãn điều kiện dưới đây (giả sử mũi tên bắt đầu tại (x1
-, y1) và kết thúc tại (x2
-, y2)):
-● Nếu mũi tên thuộc loại U, tất cả các ô (x, y) thoả mãn x < x2
-, y = y2 đều không được phép bị "chiếm".
-● Nếu mũi tên thuộc loại R, tất cả các ô (x, y) thoả mãn x = x2
-, y > y2 đều không được phép bị "chiếm".
-● Nếu mũi tên thuộc loại D, tất cả các ô (x, y) thoả mãn x > x2
-, y = y2 đều không được phép bị "chiếm".
-● Nếu mũi tên thuộc loại L, tất cả các ô (x, y) thoả mãn x = x2
-, y < y2 đều không được phép bị "chiếm"
+https://oj.clue.edu.vn/problem/prevoi26_arrows
 
 
 #include<bits/stdc++.h>
