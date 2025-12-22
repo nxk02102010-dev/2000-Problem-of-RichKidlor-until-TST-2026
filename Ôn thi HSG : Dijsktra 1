@@ -1,5 +1,4 @@
-Cho đồ thị N đỉnh, M cạnh 1 chiều.
-Yêu cầu : với mỗi đỉnh i yêu cầu in ra đường đi ngắn nhất từ 1 tới i rồi tới 1. Nếu không có in ra -1.
+https://oj.vnoi.info/problem/vr_dijkstra_sgraph
 
 
 #include<bits/stdc++.h>
