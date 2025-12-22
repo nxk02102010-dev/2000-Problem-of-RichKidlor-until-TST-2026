@@ -1,16 +1,4 @@
-Hai bạn Quang, Vinh rủ nhau đi chơi. Khu vui chơi gồm 𝑁 địa điểm, có 𝑀 con
-đường một chiều nối giữa chúng. Con đường thứ 𝑖 (1 ≤ 𝑖 ≤ 𝑀) đi từ địa điểm 𝑢𝑖 đến
-địa điểm 𝑣𝑖 hết 𝑎𝑖 đơn vị thời gian nếu đi bộ và hết 𝑏𝑖 đơn vị thời gian nếu đi xe đạp.
-Quang và Vinh bắt đầu xuất phát từ địa điểm 1, ở thời điểm 0. Quang muốn đi xe
-đạp đến địa điểm 𝑁. Vinh có kế hoạch đi bộ đến địa điểm 𝐾, do có hẹn với bạn nên
-Vinh cần phải đến đó không muộn hơn thời điểm 𝑋.
-Quang lo lắng cho Vinh vì nếu đến muộn sẽ khiến bạn của Vinh không vui, nên
-muốn cho Vinh đi nhờ xe đạp đến một địa điểm nào đó (nếu cần). Vinh cũng không
-nhất thiết cần đi nhờ Quang, còn Quang cũng không nhất thiết phải đưa Vinh đến tận 𝐾.
-Sau khi giúp Vinh để đảm bảo Vinh đến 𝐾 không muộn hơn thời điểm 𝑋, thì Quang tiếp
-tục đi xe đạp đến địa điểm 𝑁 càng sớm càng tốt.
-Yêu cầu: Hãy cho biết thời gian ít nhất mà Quang có thể đến được địa điểm 𝑁 mà
-vẫn giúp được Vinh đến được 𝐾 ở thời điểm không muộn hơn 𝑋.
+https://oj.clue.edu.vn/problem/thhv25_road
 
 
 #include<bits/stdc++.h>
