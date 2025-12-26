@@ -1,0 +1,112 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define F first
+#define S second
+const int MAX = 200100,M = 1e9 + 7;
+int n,q;
+int a[MAX],queries[MAX];
+void PREPARE(){
+    cin >> n >> q;
+    for(int i = 1;i <= n;i++) cin >> a[i];
+    for(int i = 0;i < q;i++){
+        cin >> queries[i];
+    }
+}
+namespace sub123{
+    bool check(){return q == 1;}
+    int C(int n) {return n * (n - 1) / 2;}
+    void solve(){
+        map<int,int> mp1,mp2;
+        for(int i = 1;i < queries[0];i++){
+            mp1[a[i]]++;
+        }
+        for(int i = queries[0] + 1;i <= n;i++){
+            mp2[a[i]]++;
+        }
+        int cnt1 = 0,cnt2= 0;
+        for(auto &v : mp1){
+            cnt1 += v.S *(v.S - 1) / 2;
+        }
+        for(auto &v : mp2){
+            cnt2 += v.S *(v.S - 1) / 2;
+        }
+        cout << max(C(queries[0] - 1) - cnt1 + 1,C(n - (queries[0] + 1) + 1) - cnt2 + 1) << '\n';
+    }
+}
+namespace sub4{
+    int p[MAX],sz[MAX],num[MAX];
+    map<int,int> cnt[MAX];
+    int find(int v){
+        return v == p[v] ? v : p[v] = find(p[v]);
+    }
+    multiset<int> st;
+    int C(int n){return n * (n - 1) / 2;}
+    int W(int n){return C(sz[n]) - num[n] + 1; }
+    bool unite(int a,int b){
+        a = find(a);b = find(b);        if(a == b) return 0;
+        auto it = st.find(W(a));
+        if(it != st.end()) st.erase(it);
+        it = st.find(W(b));
+        if(it != st.end()) st.erase(it);
+        if(cnt[a].size() < cnt[b].size()) swap(a,b);
+        sz[a] += sz[b];
+        p[b] = a;
+        for(auto &v : cnt[b]){
+            if(cnt[a][v.F]){
+                num[a] -= C(cnt[a][v.F]);
+                cnt[a][v.F] += v.S;
+                num[a] += C(cnt[a][v.F]);
+            }
+            else{
+                cnt[a][v.F] = v.S;
+                num[a] += C(v.S);
+            }
+        }
+        st.insert(W(a));
+        return 1;
+    }
+    void solve(){
+        iota(p,p + n + 1,0);
+        vector<bool> chosen(n + 1);
+        for(int &i : queries) chosen[i] = 1;
+        for(int i = 1; i <= n; i++){
+            if(!chosen[i]){
+                cnt[i][a[i]] = 1;
+                sz[i] = 1;
+                num[i] = 0;
+                st.insert(1);
+            }
+        }
+        for(int i = 1;i < n;i++){
+            if(chosen[i]) continue;
+            if(!chosen[i + 1]){
+                unite(i,i + 1);
+            }
+        }
+        cerr<< num[3] << ' ' << sz[3] << '\n';
+        cerr<< num[1] << ' ' << sz[1] << '\n';
+        vector<int> ans(q);
+        for(int i = q - 1;i >= 0;i--){
+            int pos = queries[i];
+            sz[pos] = 1;
+            cnt[pos].clear();
+            cnt[pos][a[pos]] = 1;
+            num[pos] = 0;
+            chosen[pos] = 0;
+            st.insert(1);
+            if(pos > 1 && !chosen[pos - 1]) unite(pos,pos - 1);
+            if(pos < n && !chosen[pos + 1]) unite(pos,pos + 1);
+            ans[i] = *st.rbegin();
+        }
+        for(int &i : ans) cout << i << '\n';
+    }
+}
+signed main(){
+    freopen("tet.inp","r",stdin);
+    freopen("tet.out","w",stdout);
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    PREPARE();
+    if(sub123::check()) sub123::solve();
+    else sub4::solve();
+}
