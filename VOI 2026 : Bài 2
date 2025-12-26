@@ -1,0 +1,138 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define F first
+#define S second
+const int MAX = 200100,INF = 1e18;
+int N,Q;
+pair<int,int> a[MAX];
+struct QUERI{
+    int type, M , K , T;
+};
+QUERI queries[MAX];
+void PREPARE(){
+    cin >> N >> Q;
+    for(int i = 1 ;i <= N;i++){
+        cin >> a[i].F;
+    }
+    for(int i = 1 ;i <= N;i++){
+        cin >> a[i].S;
+    }
+    for(int i = 0;i < Q;i++){
+        cin >> queries[i].type >> queries[i].M >> queries[i].K;
+        if(queries[i].type == 1){
+            cin >> queries[i].T;
+        }
+    }
+    sort(a + 1,a + N + 1);
+}
+namespace sub1{
+    bool check(){
+        for(int i = 1;i <= N;i++) if(a[i].S > 1) return 0;
+        return 1;
+    }
+    void solve(){
+        vector<int> pref(N + 1);
+        for(int i = 1;i <= N;i++) pref[i] = pref[i - 1] + a[i].F;
+        auto cal = [&](int K,int T) -> int{
+            if(K * T > N) return INF;
+            return pref[K * T];
+        };
+        for(int i = 0;i < Q;i++){
+            int type = queries[i].type;
+            if(type == 1){
+                if(cal(queries[i].K,queries[i].T) <= queries[i].M) cout << "1\n";
+                else cout << "0\n";
+            }
+            else{
+                int l = 0,r = 1e9,ans = -1;
+                while(l <= r){
+                    int m = (l + r) >> 1;
+                    if(cal(queries[i].K,m) <= queries[i].M){
+                        ans = m;
+                        l = m+ 1;
+                    }
+                    else r = m - 1;
+                }
+                cout << ans << '\n';
+            }
+        }
+    }
+}
+namespace sub23{
+    bool check(){
+        return N <= 1000 && Q <= 1000;
+    }
+    int CAL(int K,int T){
+        int total=0,weight=0;
+        for(int i=1;i<=N;i++){
+            int take = min(a[i].S,T);
+            total += take;
+            weight += a[i].F * take;
+            if(total >= K*T){
+                weight -= (total - K*T) * a[i].F;
+                return weight;
+            }
+        }
+        return INF;
+    }
+    void solve(){
+        for(int i = 0;i < Q;i++){
+            if(queries[i].type == 1){
+                if(CAL(queries[i].K,queries[i].T) <= queries[i].M) cout << "1\n";
+                else cout << "0\n";
+            }
+            else{
+                int l = 0,r = 1e9,ans = -1;
+                while(l <= r){
+                    int m = (l + r) >> 1;
+                    if(CAL(queries[i].K,m) <= queries[i].M){
+                        ans = m;
+                        l = m + 1;
+                    }
+                    else r = m - 1;
+                }
+                cout << ans << '\n';
+            }
+        }
+    }
+}
+namespace sub45{
+    void solve(){
+        vector<int> cnt(MAX),prefcnt(MAX),prefsum(MAX);
+        for(int i = 1;i <= N;i++) cnt[a[i].F] += a[i].S;
+        for(int i = 1;i < MAX;i++) prefcnt[i] = prefcnt[i - 1] + cnt[i],prefsum[i] = prefsum[i - 1] + cnt[i] * i;
+        auto chk = [&](int X) ->int{
+            if(prefcnt[MAX - 1] < X) return INF;
+            int it = lower_bound(prefcnt.begin(),prefcnt.end(),X) - prefcnt.begin();
+            return prefsum[it - 1] + (X - prefcnt[it - 1]) * it;
+        };
+        for(int i = 0;i < Q;i++){
+            if(queries[i].type == 1){
+                if(chk(queries[i].K * queries[i].T) <= queries[i].M) cout << "1\n";
+                else cout << "0\n";
+            }
+            else{
+                int l = 0,r = 1e9,ans = -1;
+                while(l <= r){
+                    int m = (l + r)>> 1;
+                    if(chk(m * queries[i].K) <= queries[i].M){
+                        ans = m;
+                        l = m + 1;
+                    }
+                    else r = m - 1;
+                }
+                cout << ans << '\n';
+            }
+        }
+    }
+}
+signed main(){
+    freopen("gift.inp","r",stdin);
+    freopen("gift.out","w",stdout);
+    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    PREPARE();
+    if(sub1::check()) sub1::solve();
+    else if(sub23::check()) sub23::solve();
+    else sub45::solve();
+}
