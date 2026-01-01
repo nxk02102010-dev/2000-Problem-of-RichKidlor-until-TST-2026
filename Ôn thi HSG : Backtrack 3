@@ -1,0 +1,75 @@
+https://marisaoj.com/problem/346
+#include <bits/stdc++.h>
+using namespace std;
+//Coder:RichKidlor in 10IT CTL_DL
+//Contest : Codeforces,Vnoi,Clueoj,TLOI
+#define FOR(i,a,b) for(int i = (a);i < (b);i++)
+#define REP(i,a,b) for(int i = (a);i <= (b);i++)
+#define REPD(i,a,b) for(int i = (a); i >= (b);i--)
+#define FORD(i,a,b) for(int i = (a);i > (b);i--)
+#define F first
+#define S second
+#define pb push_back
+#define BIT(mask,i) (mask) & (1 << (i))
+#define CHECK(mask,i) (((mask) >> (i)) & 1)
+#define all(x) (x).begin(), (x).end()
+#define sz(x) (int)(x).size()
+#define pii pair<int,int>
+#define pil pair<int,ll>
+#define pll pair<ll,ll>
+#define allr(x) (x).rbegin(),(x).rend()
+#define pli pair<ll,int>
+#define nocout cout << "NO" << '\n'
+#define yescout cout << "YES" << '\n'
+#define INF (ll) 1e18
+#define iINF 1e9
+#define minusone cout << -1 << '\n'
+#define ar array
+#define EP emplace_back
+#define I ios::sync_with_stdio(0);
+#define LOVE cin.tie(0);
+#define GB cout.tie(0);
+//#include<ext/pb_ds/assoc_container.hpp>
+//using namespace __gnu_pbds;
+//template<class T> using ordered_set = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
+#define STR(x) #x
+#define FileName(x) STR(x)
+//#define File chondua
+#pragma GCC optimize("Ofast,unroll-loops")
+#pragma GCC target("avx2")
+#define int long long
+//#define ll __int128
+#define ll long long
+template<class X,class Y>bool maximize (X &x,const Y &y){if(x < y){x = y;return 1;}return 0;}
+template<class X,class Y> bool minimize (X &x,const Y &y){if(x > y){x = y;return 1;}return 0;}
+namespace Love{
+void backtrack(int n,vector<int> &a,int s,int k,int p = 0){
+    if(s == k) {
+        yescout;
+        exit(0);
+    }
+    FOR(i,p + 1,n){
+        backtrack(n,a,s + a[i],k,i);
+    }
+}
+void solve(){
+    int n,k;cin >> n >> k;
+    vector<int> a(n);
+    for(int i = 0;i < n;i++) cin >> a[i];
+    FOR(i,0,n) {int s = a[i];backtrack(n,a,s,k);}
+    nocout;
+}
+}
+signed main(){
+//    freopen("bcount.in","r",stdin);
+//    freopen("bcount.out","w",stdout);
+#ifdef File
+    freopen(FileName(File)".inp","r",stdin);
+    freopen(FileName(File)".out","w",stdout);
+#endif
+    I LOVE GB;
+    int t = 1;//cin >> t;
+    while(t--)
+    Love :: solve();
+    return 0;
+}
