@@ -1,0 +1,41 @@
+https://oj.clue.edu.vn/problem/hn_hsg9_26_d
+
+
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+
+signed main(){
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+
+    int n, s;
+    cin >> n;
+
+    vector<int> a(n+1), pre(n+1, 0);
+    for(int i = 1; i <= n; i++){
+        cin >> a[i];
+        pre[i] = pre[i-1] + a[i];
+    }
+
+    cin >> s;
+    int T = pre[n] - s;
+    if(pre[n] <= s){
+        cout << 0;
+        return 0;
+    }
+    deque<int> dq;
+    int ans = LLONG_MAX;
+    for(int j = 0; j <= n; j++){
+        while(!dq.empty() && pre[j] - pre[dq.front()] >= T){
+            ans = min(ans, j - dq.front());
+            dq.pop_front();
+        }
+        while(!dq.empty() && pre[dq.back()] >= pre[j])
+            dq.pop_back();
+        dq.push_back(j);
+    }
+
+    if(ans == LLONG_MAX) cout << -1;
+    else cout << ans;
+}
