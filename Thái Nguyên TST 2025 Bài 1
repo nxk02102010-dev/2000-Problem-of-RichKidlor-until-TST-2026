@@ -1,8 +1,4 @@
-Alice định nghĩa một xâu kí tự được gọi là mật khẩu "an toàn" nếu xâu có độ dài ít nhất bằng 6 và xâu chứa ít nhất một chữ cái in hoa (A..Z), một chữ cái in thường (a..z), một chữ số (0..9).
-Ví dụ: a1B2C3, tinHoc6 là hai mật khẩu "an toàn", còn a1B2C, a1b2c3, A1B2C3, tinHoc đều không phải là mật khẩu "an toàn".
-Alice có một xâu kí tự S độ dài n và cần thực hiện q thao tác, mỗi thao tác thuộc một trong hai loại sau:
-Thao tác 1 có dạng: 1 i j, swap(S[i],S[j])
-Thao tacs 2 có dạng : 1 l r,kiểm tra xem l -> r có phải là an toàn hay không.
+https://oj.clue.edu.vn/problem/tn_tst_25_a
 
 #include<bits/stdc++.h>
 using namespace std;
