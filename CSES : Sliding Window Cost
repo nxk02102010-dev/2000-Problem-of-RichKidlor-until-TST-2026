@@ -1,0 +1,137 @@
+https://cses.fi/problemset/task/1077/
+2 cách segment và fenwick
+
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define F first
+#define S second
+const int MAX = 100100;
+struct Segment{
+        int n;
+        vector<int> t,a;
+        Segment(int _n,vector<int> _a = {}){
+                n = _n;
+                if(n > 0) t.assign(4 * n,0);
+                a = _a;
+        }
+        void Build(int v,int l,int r){
+                if(l == r){
+                        t[v] = a[l];
+                        return;
+                }
+                int m = (l + r) >> 1;
+                Build(v << 1,l,m);
+                Build(v << 1 | 1,m + 1,r);
+                t[v] = t[v << 1] + t[v << 1 | 1];
+        }
+        void Update(int pos,int val,int v,int l,int r){
+                if(l == r){
+                        t[v] += val;
+                        return;
+                }
+                int m = (l + r) >> 1;
+                if(pos <= m) Update(pos,val,v << 1,l,m);
+                else Update(pos,val,v << 1 | 1,m + 1,r);
+                t[v] = t[v << 1] + t[v << 1 | 1];
+        }
+        int Kth(int k,int v,int l,int r){
+                if(l == r){
+                        return l;
+                }
+                int m = (l + r) >> 1;
+                if(k <= t[v << 1]) return Kth(k,v << 1,l,m);
+                else return Kth(k - t[v << 1],v << 1 | 1,m + 1,r);
+        }
+        int Sum(int tl,int tr,int v,int l,int r){
+                if(r < tl || l > tr) return 0;
+                if(l >= tl && r <= tr) return t[v];
+                int m = (l + r) >> 1;
+                return Sum(tl,tr,v << 1,l,m) + Sum(tl,tr,v << 1 | 1,m + 1,r);
+        }
+        void build(){
+                Build(1,1,n);
+        }
+        void up(int pos,int val){
+                Update(pos,val,1,1,n);
+        }
+        int kth(int k){
+                return Kth(k,1,1,n);
+        }
+        int sum(int l,int r){
+                return Sum(l,r,1,1,n);
+        }
+};
+struct Fenwick{
+        int n;
+        vector<int> bit;
+        Fenwick(int _n){
+                n = _n;
+                if(n > 0) bit.assign(n + 1,0);
+        }
+        void up(int i,int v){
+                for(;i <= n;i += i & -i) bit[i] += v;
+        }
+        int kth(int k){
+                int pos = 0;
+                for(int i = 20;i >= 0;i--){
+                        if(pos + (1 << i) <= n && bit[pos + (1 << i)] < k){
+                                k -= bit[pos + (1 << i)];
+                                pos += (1 << i);
+                        }
+                }
+                return pos + 1;
+        }
+        int sum(int i){
+                int r = 0;
+                for(;i;i -= i & -i) r += bit[i];
+                return r;
+        }
+};
+signed main(){
+        ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+        int n,k;cin >> n >> k;
+        vector<int> a(n),v;
+        for(int &i : a) cin >> i,v.push_back(i);
+        sort(v.begin(),v.end());
+        v.erase(unique(v.begin(),v.end()),v.end());
+        int m = v.size();
+        Segment Scnt(m), Ssum(m);
+        Fenwick Fcnt(m), Fsum(m);
+        auto id = [&](int x){
+                return (int)(lower_bound(v.begin(),v.end(),x) - v.begin()) + 1;
+        };
+        int tot = 0;
+        for(int i = 0;i < n;i++){
+                int p = id(a[i]);
+                Fcnt.up(p,1);
+                Fsum.up(p,a[i]);
+                Scnt.up(p,1);
+                Ssum.up(p,a[i]);
+                tot += a[i];
+                if(i >= k){
+                        int old = id(a[i - k]);
+                        Fcnt.up(old,-1);
+                        Fsum.up(old,-a[i - k]);
+                        Scnt.up(old,-1);
+                        Ssum.up(old,-a[i - k]);
+                        tot -= a[i - k];
+                }
+                if(i >= k - 1){
+                        int half = (k + 1) / 2;
+                        int Fpos = Fcnt.kth(half);
+                        int Spos = Scnt.kth(half);
+                        int Fmedian = v[Fpos - 1];
+                        int Smedian = v[Spos - 1];
+                        int LFcnt = Fcnt.sum(Fpos);
+                        int LFsum = Fsum.sum(Fpos);
+                        int LScnt = Scnt.sum(1,Fpos);
+                        int LSsum = Ssum.sum(1,Fpos);
+                        int RFcnt = k - LFcnt;
+                        int RFsum = tot - LFsum;
+                        int RScnt = k - LScnt;
+                        int RSsum = tot - LSsum;
+                        cout << Fmedian * LFcnt - LFsum + RFsum - Fmedian * RFcnt << ' ' << Smedian * LScnt - LSsum + RSsum - Smedian * RScnt << '\n';;
+                }
+        }
+}
