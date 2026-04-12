@@ -1,0 +1,72 @@
+//Ordered set Segtree version
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define F first
+#define S second
+const int MAX = 200100;
+int q;
+int t[4 * MAX];
+struct Query{
+        char type;
+        int val;
+} Q[MAX];
+int n;
+void up(int pos,int val,int v = 1,int l = 1,int r = n){
+        if(l == r){
+                t[v] += val;
+                return;
+        }
+        int m  =(l + r) >> 1;
+        if(pos <= m) up(pos,val,v << 1,l,m);
+        else up(pos,val,v << 1 | 1,m + 1,r);
+        t[v] = t[v << 1] + t[v << 1 | 1];
+}
+int kth(int x,int v = 1,int l = 1,int r =n){
+        if(l == r) return l;
+        int m = (l + r) >> 1;
+        if(t[v << 1] >= x) return kth(x,v << 1,l,m);
+        else return kth(x - t[v << 1],v << 1 | 1,m + 1,r);
+}
+int sum(int tl,int tr,int v = 1,int l = 1,int r = n){
+        if(l > tr || r < tl) return 0;
+        if(l >= tl && r <= tr) return t[v];
+        int m = (l + r) >> 1;
+        return sum(tl,tr,v << 1,l,m) + sum(tl,tr,v << 1 | 1,m + 1,r);
+}
+signed main(){
+        ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+        cin >> q;
+        vector<int> vals;
+        for(int i = 1;i <= q;i++){
+                cin >> Q[i].type;
+                cin >> Q[i].val;
+                if(Q[i].type != 'K'){
+                        vals.push_back(Q[i].val);
+                }
+        }
+        sort(vals.begin(),vals.end());
+        vals.erase(unique(vals.begin(),vals.end()),vals.end());
+        auto id = [&](int x){
+                return (int)(lower_bound(vals.begin(),vals.end(),x) - vals.begin()) + 1;
+        };
+        n = vals.size();
+        for(int i = 1;i <= q;i++){
+                if(Q[i].type == 'I'){
+                        int pos = id(Q[i].val);
+                        if(sum(pos,pos) == 0) up(pos,1);
+                }
+                else if(Q[i].type == 'D'){
+                        int pos = id(Q[i].val);
+                        if(sum(pos,pos) == 1) up(pos,-1);
+                }
+                else if(Q[i].type == 'K'){
+                        if(Q[i].val > sum(1,n)) cout << "invalid\n";
+                        else cout << vals[kth(Q[i].val) - 1] << '\n';
+                }
+                else{
+                        int pos = id(Q[i].val) - 1;
+                        cout << sum(1,pos) << '\n';
+                }
+        }
+}
