@@ -13,6 +13,20 @@ Thực ra có thể có 3 giai đoạn nhưng là 1 giai đoạn nhỏ và 1 gia
 Thì phần này nói dễ hiểu thì là phần xây ans
 Qua quá trình code thì mình gặp 1 thiếu sót và phải code lại phần tìm ans rất đau. 
 Đó chính là nếu mà bạn xây ans theo cách 
+vector<int> ans;
+int L = *max_element(f,f + n + 1);
+long long valL = -INF;
+long long posL = -INF;
+int tot = 0;
+for(int i = 1;i <= n;i++){
+        if(f[i] == L){
+                tot += cnt[i];
+        }
+}
+if(k > tot){
+        cout << -1 << '\n';
+        return 0;
+}
 while(L > 0){
         vector<int> cand;
         for(int i =1;i <= n;i++){
