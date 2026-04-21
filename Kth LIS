@@ -1,0 +1,217 @@
+#include<bits/stdc++.h>
+using namespace std;
+/*
+Đây là 1 bài khó và khó tìm nên mình sẽ để 1 link JUDGE ở đây để các bạn có thể nộp và "thẩm" solution tốt nhất nhé
+https://www.hackerrank.com/challenges/super-kth-lis/problem
+Coded by : RichKidlor
+Idea:
+Giai đoạn 1:
+Ta phải xây 2 mảng là f và cnt với f[i] độ dài của LIS mà phần tử bắt đầu là f[i], còn cnt[i] là số LIS mà có khởi đầu là i
+Thì theo cách của mình mình thấy rằng là ta có thể xài nén tọa độ và update dần dần segment tree với 2 loại node là LIS và cntLIS
+Giai đoạn 2:
+Thực ra có thể có 3 giai đoạn nhưng là 1 giai đoạn nhỏ và 1 giai đoạn lớn nên mình sẽ gộp vào luôn
+Thì phần này nói dễ hiểu thì là phần xây ans
+Qua quá trình code thì mình gặp 1 thiếu sót và phải code lại phần tìm ans rất đau. 
+Đó chính là nếu mà bạn xây ans theo cách 
+while(L > 0){
+        vector<int> cand;
+        for(int i =1;i <= n;i++){
+                if(posL < i && a[i] > valL && f[i] == L) cand.push_back(i);
+        }
+        sort(cand.begin(),cand.end(),[&](const int &x,const int &y){
+                if(a[x] != a[y]) return a[x] < a[y];
+                return x < y;
+        });
+        for(int &i : cand){
+                if(cnt[i] < k) k -= cnt[i];
+                else{
+                        ans.push_back(a[i]);
+                        valL = a[i];
+                        posL = i;
+                        break;
+                }
+        }
+        L--;
+}
+
+này thì sẽ sai vì ta có thể thấy những phần tử tiềm năng có khi lại đứng trước vị trí đang xét khi các giá trị bằng nhau
+như
+5 3
+1 3 1 2 5
+thì chắc chắn xây như trên sẽ ra 
+1 2 5
+thế nhưng đáp án bạn có thể thấy ngay là 1 3 5
+Từ đó ta rút ra được nhận xét là ta phải xét trên vị trí toàn mảng thay vì là cập nhật giới hạn vị trí
+Sau nửa tiếng nháp và test thì mình đã nghĩ ra cách là sử dụng 1 BIT để lưu số cách xây dựng LIS sao cho nó chứa x hay get(pos[x] - 1)
+Thì đầu tiên là ta sẽ sort và với mỗi lần xét các ứng cử viên thì ta sẽ xét 1 hộp chứa các giá trị giống nhau và f giống nhau
+Với mỗi nhóm ứng cử viên được group như trên mình sẽ có 1 biến total để lấy tổng số cách lấy ans sao cho sau phần tử trước đó thì là x
+Tiếp theo là so với k nếu nó bé hơn -> ans cần tìm không chứa x nên chuyển nhóm ứng cử viên mới
+Sau đó là cập nhật lại bit với số cách tạo LIS chứa nhưng phần tử sau
+Đây là 1 ví dụ minh họa về cách hoạt động của BIT:
+5 3
+1 3 1 2 5
+
+Đầu tiên BIT chưa được cập nhật nên mình sẽ tua nhanh là total của chúng ta ở đây là 3
+nên ans sẽ lấy 1 và BIT được cập nhật là
+1 1 2 2 2
+Sau đó ta xét i = 4 ta có thể thấy cnt[4] = 1 và BIT.get(4) là 2 nên total = 2 
+mà 2 bé hơn 3 nên k -= 2 -> k = 1
+Và khi không được chọn thì BIT sẽ không cập nhật
+Sau đó ta xét i = 2 ta có thể thấy cnt[2] = 1 và BIT.get(2) = 1 nên total = 1
+-> lấy 3
+BIT sau cập nhật là: 0 1 1 1 1
+Từ đó ta lấy 5 với cách tương tự 3
+*/
+const int MAX = 200100;
+const long long INF = 1e18;
+int n;
+long long a[MAX];
+long long k;
+int f[MAX];
+long long cnt[MAX];
+long long add(long long a,long long b){
+        return a > INF - b ? INF : a + b;
+}
+long long mul(long long a,long long b){
+        return a > INF / b ? INF : a * b;
+}
+struct Node{
+        long long val = 0;
+        long long cnt = 0;
+};
+struct Segmentfordp{
+        Node t[4 * MAX];
+        Node merge(const Node &a,const Node &b){
+                Node c;
+                if(a.val > b.val) return a;
+                if(b.val > a.val) return b;
+                return {a.val,add(a.cnt,b.cnt)};
+        }
+        void up(int pos,long long val,long long cnt,int v,int l,int r){
+                if(l == r){
+                        if(val > t[v].val){
+                                t[v].val = val;
+                                t[v].cnt = cnt;
+                        }
+                        else if(val == t[v].val){
+                                t[v].cnt = add(t[v].cnt,cnt);
+                        }
+                        return;
+                }
+                int m = (l + r) >> 1;
+                if(pos <= m) up(pos,val,cnt,v << 1,l,m);
+                else up(pos,val,cnt,v << 1 | 1,m + 1,r);
+                t[v] = merge(t[v << 1],t[v << 1 | 1]);
+        }
+        Node get(int tl,int tr,int v,int l,int r){
+                if(tl > tr) return {0,0};
+                if(l > tr || r < tl) return {0,0};
+                if(l >= tl && r <= tr) return t[v];
+                int m = (l + r) >> 1;
+                return merge(get(tl,tr,v << 1,l,m),get(tl,tr,v << 1 | 1,m + 1,r));
+        }
+};
+struct BITforbuildans{
+        long long bit[MAX];
+        void up(int i,long long v){
+                for(;i <= n;i += i & -i) bit[i] = add(bit[i],v);
+        }
+        long long get(int i){
+                long long r = 0;
+                for(;i; i-= i &-i) r = add(r,bit[i]);
+                return r;
+        }
+        void coutbit(){
+                for(int i = 1;i <= n;i++){
+                        cerr << get(i) << ' ';
+                }
+                cerr << '\n';
+        }
+};
+int main(){
+//        freopen("kthlis.inp", "r", stdin);
+//        freopen("kthlis.out", "w", stdout);
+        ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+        cin >> n >> k;
+        vector<int> vals;
+        for(int i =1 ;i <= n;i++) cin >> a[i],vals.push_back(a[i]);
+        sort(vals.begin(),vals.end());
+        vals.erase(unique(vals.begin(),vals.end()),vals.end());
+        auto ID = [&](int x){
+                return (int)(lower_bound(vals.begin(),vals.end(),x) - vals.begin()) + 1;
+        };
+        static Segmentfordp seg1;
+        int sz = vals.size();
+        for(int i = n;i >= 1;i--){
+                int id = ID(a[i]);
+                Node get = seg1.get(id + 1,sz,1,1,sz);
+                f[i] = max(1ll,get.val + 1);
+                cnt[i] = max(1ll,get.cnt);
+                seg1.up(id,f[i],cnt[i],1,1,sz);
+        }
+//        for(int i = 1;i <= n;i++) cout << f[i] << ' ';
+//        cout << '\n';
+//        for(int i = 1;i <= n;i++) cout << cnt[i] << ' ';
+//        cout << '\n';
+        int L = *max_element(f,f + n + 1);
+        long long tot = 0;
+        for(int i = 1;i <= n;i++){
+                if(f[i] == L){
+                        tot = add(tot,cnt[i]);
+                }
+        }
+        if(k > tot){
+                cout << -1 << '\n';
+                return 0;
+        }
+        vector<long long> ans;
+        vector<vector<int>> group(L + 1);
+        for(int i= 1 ;i <= n;i++){
+                group[f[i]].push_back(i);
+        }
+        for(int i = 1;i <= L;i++)
+                sort(group[i].begin(),group[i].end(),[&](const int &x,const int&y){
+                        if(a[x] != a[y]) return a[x] < a[y];
+                        return x < y;
+                });
+        static BITforbuildans bit;
+        long long valL = -INF;
+        long long fir = 1;
+        for(int pos = L;pos >= 1;pos--){
+                        bool chosen = 0;
+                for(int l = 0;l < group[pos].size();){
+                        int r = l;
+                        if(a[group[pos][l]] <= valL){
+                                while(r < group[pos].size() && a[group[pos][r]] == a[group[pos][l]]) r++;
+                                l = r;
+                                continue;
+                        }
+                        long long tot = 0;
+                        vector<pair<long long,long long>> prev;
+                        while(r < group[pos].size() && a[group[pos][r]] == a[group[pos][l]]){
+                                long long m = fir ? 1 : bit.get(group[pos][r]);
+                                tot = add(tot,mul(m,cnt[group[pos][r]]));
+                                if(m > 0) prev.push_back({group[pos][r],m});
+                                r++;
+                        }
+                        if(k > tot){
+                                k -= tot;
+                                l = r;
+                                continue;
+                        }
+                        ans.push_back(a[group[pos][l]]);
+                        fill(bit.bit,bit.bit + n + 1,0);
+                        for(auto &x : prev) bit.up(x.first,x.second);
+                        //bit.coutbit();
+                        fir = 0;
+                        valL = a[group[pos][l]];
+                        chosen = 1;
+                        break;
+                }
+        }
+        for(long long &i : ans) cout << i << ' ';
+}
+/*
+5 3
+1 3 1 2 5
+*/
