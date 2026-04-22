@@ -1,1 +1,1 @@
-These code is wrote by Ngo Xuan Khanh
+These code is wrote by RichKidlor
