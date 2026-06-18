@@ -1,1 +1,383 @@
-coding
+#include<bits/stdc++.h>
+using namespace std;
+/*
+Idea:
+
+*/
+const int MAX = 100100;
+const long long INF = 1e9 + 1;
+struct Q{
+        long long m,k,t;
+        int id;
+} queries[MAX];
+struct TUFF{
+        long long s,w;
+} a[MAX];
+int n,q;
+struct Q2{
+        long long m,k;
+        long long l,r;
+        long long ans;
+        int id;
+};
+namespace sub1{
+        bool check(){
+                int ok = 1;
+                for(int i = 1;i <= n;i++) ok &= (a[i].s == 1);
+                return ok;
+        }
+        void solve(){
+                sort(a + 1,a + n + 1,[&](const TUFF &a, const TUFF &b){ return a.w < b.w; });
+                vector<long long> prefix(n + 1);
+                for(int i = 1 ;i <= n;i++) prefix[i] = prefix[i - 1] + a[i].w;
+                auto get = [&](long long pos) -> long long{
+                        if(pos > n) return INF;
+                        return prefix[pos];
+                };
+                for(int query = 1;query <= q;query++){
+                        long long M = queries[query].m;
+                        long long K = queries[query].k;
+                        long long T = queries[query].t;
+                        if(T == -1){
+                                int l = 0,r = n;
+                                int ans = -1;
+                                while(l <= r){
+                                        int m = (l + r) >> 1;
+                                        if(get(K * m) <= M){
+                                                ans = m;
+                                                l = m + 1;
+                                        }
+                                        else r = m - 1;
+                                }
+                                cout << ans << '\n';
+                        }
+                        else{
+                                if(get(K * T) <= M) cout << 1 << '\n';
+                                else cout << 0 << '\n';
+                        }
+                }
+        }
+}
+namespace sub23{
+        bool check(){
+                return n <= 1000 && q <= 1000;
+        }
+        int check(long long M,long long K,long long T){
+                long long m = 0;
+                long long t = 0;
+                for(int i = 1;i <= n && t < K * T;i++){
+                        long long add = min(T,a[i].s);
+                        if(t + add > K * T){
+                                return (m + a[i].w * (K * T - t)) <= M;
+                        }
+                        t += add;
+                        m += a[i].w * add;
+                }
+                return m <= M;
+        }
+        void solve(){
+                sort(a + 1,a + n + 1,[&](const TUFF &a, const TUFF &b){ return a.w < b.w || (a.w == b.w && a.s > b.s); });
+                for(int query = 1;query <= q;query++){
+                        int M = queries[query].m;
+                        int K = queries[query].k;
+                        int T = queries[query].t;
+                        if(T == -1){
+                                int l = 0,r = 1e9;
+                                int ans = 0;
+                                while(l <= r){
+                                        int m = (l + r) >> 1;
+                                        if(check(M,K,m)){
+                                                ans = m;
+                                                l = m + 1;
+                                        }
+                                        else r = m - 1;
+                                }
+                                cout << ans << '\n';
+                        }
+                        else{
+                                if(check(M,K,T)) cout << 1 << '\n';
+                                else cout << 0 << '\n';
+                        }
+                }
+        }
+}
+namespace sub4{
+        bool check(){
+                for(int i = 1;i <= q;i++){
+                        if(queries[i].t != -1) return 0;
+                }
+                return 1;
+        }
+        struct Node{
+                long long S;
+                long long W;
+                long long notW;
+                long long cnt;
+        };
+        int idW[MAX],idS[MAX],id[MAX];
+        struct Segment{
+                Node t[4 * MAX];
+                Node merge(Node a,Node b){
+                        return {a.S + b.S,a.W + b.W, a.notW + b.notW,a.cnt + b.cnt};
+                }
+                void build(int v,int l,int r){
+                        if(l == r){
+                                t[v].notW = a[idW[l]].w;
+                                t[v].cnt = 1;
+                                return;
+                        }
+                        int m = (l + r) >> 1;
+                        build(v << 1,l,m);
+                        build(v << 1 | 1,m + 1,r);
+                        t[v] = merge(t[v << 1],t[v << 1 | 1]);
+                }
+                void update(int pos,int v,int l,int r){
+                        if(l == r){
+                                t[v].notW = 0;
+                                t[v].W = a[idW[l]].w * a[idW[l]].s;
+                                t[v].S = a[idW[l]].s;
+                                t[v].cnt = 0;
+                                return;
+                        }
+                        int m = (l + r) >> 1;
+                        if(pos <= m) update(pos,v << 1,l,m);
+                        else update(pos,v << 1 | 1,m + 1,r);
+                        t[v] = merge(t[v << 1],t[v << 1 | 1]);
+                }
+                long long kth(long long val,long long T,int v,int l,int r){
+                        if(l == r){
+                                return min(t[v].S + t[v].cnt * T,val) * a[idW[l]].w;
+                        }
+                        int m = (l + r) >> 1;
+                        long long valleft = t[v << 1].S + t[v << 1].cnt * T;
+                        long long ans = t[v << 1].W + t[v << 1].notW * T;
+                        if(valleft < val) {
+                                val -= valleft;
+                                return ans + kth(val,T,v << 1 | 1,m + 1,r);
+                        }
+                        return kth(val,T,v << 1,l,m);
+                }
+        } seg;
+        int check(long long M,long long K,long long T){
+                if(K * T > seg.t[1].S + seg.t[1].cnt * T) return 0;
+                long long m = 0;
+                long long t = 0;
+                long long w = seg.kth(K * T,T,1,1,n);
+                return w <= M;
+        }
+        void solve(){
+                iota(idW,idW + n + 1,0);
+                iota(idS,idS + n + 1,0);
+                iota(id,id + n + 1,0);
+                sort(idW + 1,idW + n + 1,[&](const int &x,const int &y){ return a[x].w < a[y].w; });
+                sort(idS + 1,idS + n + 1,[&](const int &x,const int &y){ return a[x].s < a[y].s; });
+                for(int i = 1;i <= n;i++){
+                        id[idW[i]] = i;
+                }
+                seg.build(1,1,n);
+                int i = 1;
+                sort(queries + 1,queries + q + 1,[&](const Q &a,const Q &b){ return a.t < b.t; });
+                vector<int> ans(q + 1);
+                for(int query = 1;query <= q;query++){
+                        int M = queries[query].m;
+                        int K = queries[query].k;
+                        int T = queries[query].t;
+                        while(i <= n && a[idS[i]].s <= T){
+                                seg.update(id[idS[i]],1,1,n);
+                                i++;
+                        }
+                        if(check(M,K,T)) ans[queries[query].id] = 1;
+                }
+                for(int i = 1;i <= q;i++) cout << ans[i] << '\n';
+        }
+}
+namespace sub5{
+        long long ans[MAX];
+        int pos[MAX];
+        long long sval[MAX];
+        long long curS = 0, curCnt = 0;
+        vector<int> vq[MAX];
+        struct BITLL{
+                long long fen[MAX];
+                void update(int i,int n,long long val){
+                        for(; i <= n; i += i & -i) fen[i] += val;
+                }
+        };
+        struct BIT128{
+                __int128 fen[MAX];
+                void update(int i,int n,__int128 val){
+                        for(; i <= n; i += i & -i) fen[i] += val;
+                }
+        };
+        BITLL f1, f2, f4;
+        BIT128 f3;
+        int getlog(long long n){
+                return 63 - __builtin_clzll(n);
+        }
+        inline void resetBIT(){
+                memset(f1.fen, 0, sizeof(f1.fen));
+                memset(f2.fen, 0, sizeof(f2.fen));
+                memset(f3.fen, 0, sizeof(f3.fen));
+                memset(f4.fen, 0, sizeof(f4.fen));
+                curS = 0;
+                curCnt = 0;
+        }
+        inline void build_inactive(){
+                resetBIT();
+                curCnt = n;
+                for(int i = 1; i <= n; i++){
+                        f2.update(i, n, 1);
+                        f4.update(i, n, a[i].w);
+                }
+        }
+        inline void activate(int p){
+                long long w = a[p].w;
+                long long s = a[p].s;
+
+                f1.update(p, n, s);
+                f2.update(p, n, -1);
+                f3.update(p, n, (__int128)w * s);
+                f4.update(p, n, -w);
+
+                curS += s;
+                curCnt--;
+        }
+        inline void deactivate(int p){
+                long long w = a[p].w;
+                long long s = a[p].s;
+
+                f1.update(p, n, -s);
+                f2.update(p, n, 1);
+                f3.update(p, n, -(__int128)w * s);
+                f4.update(p, n, w);
+
+                curS -= s;
+                curCnt++;
+        }
+        inline bool can_take(long long K, long long T){
+                return (__int128)K * T <= (__int128)curS + (__int128)curCnt * T;
+        }
+        long long walk(long long need, long long k){
+                int p = 0;
+                __int128 rem = need;
+                __int128 cost = 0;
+                for(int i = getlog(n); i + 1; i--){
+                        int nxt = p + (1 << i);
+                        if(nxt <= n){
+                                __int128 take = (__int128)f1.fen[nxt] + (__int128)f2.fen[nxt] * k;
+                                if(rem - take >= 0){
+                                        cost += f3.fen[nxt] + (__int128)f4.fen[nxt] * k;
+                                        rem -= take;
+                                        p = nxt;
+                                }
+                        }
+                }
+                cost += rem * a[p + 1].w;
+                return (long long)cost;
+        }
+        long long calc(long long K, long long T){
+                __int128 need = (__int128)K * T;
+                if(need > (__int128)curS + (__int128)curCnt * T) return (long long)4e18;
+                return walk((long long)need, T);
+        }
+        void solve_type1(vector<int> ask1){
+                build_inactive();
+                sort(ask1.begin(), ask1.end(), [&](int x, int y){
+                        return queries[x].t < queries[y].t;
+                });
+                int p = 1;
+                for(int id : ask1){
+                        while(p <= n && a[pos[p]].s <= queries[id].t){
+                                activate(pos[p]);
+                                p++;
+                        }
+                        ans[id] = (calc(queries[id].k, queries[id].t) <= queries[id].m);
+                }
+        }
+        void PBS(long long l,long long r,vector<Q2> &vi){
+                if(vi.empty()) return;
+                if(l == r){
+                        for(auto &qu : vi) ans[qu.id] = qu.ans;
+                        return;
+                }
+                long long mid = (l + r) >> 1;
+                vector<Q2> vl, vr;
+                vl.reserve(vi.size());
+                vr.reserve(vi.size());
+                int pl = lower_bound(sval + 1, sval + n + 1, l) - sval;
+                int pm = upper_bound(sval + 1, sval + n + 1, mid) - sval - 1;
+                int pr = upper_bound(sval + 1, sval + n + 1, mid + 1) - sval - 1;
+                for(int i = pl; i <= pr; i++) activate(pos[i]);
+                for(auto &qu : vi){
+                        if(calc(qu.k, mid + 1) <= qu.m){
+                                qu.ans = mid + 1;
+                                vr.push_back(qu);
+                        }else{
+                                vl.push_back(qu);
+                        }
+                }
+                for(int i = pm + 1; i <= pr; i++) deactivate(pos[i]);
+
+                PBS(mid + 1, r, vr);
+
+                for(int i = pl; i <= pm; i++) deactivate(pos[i]);
+
+                PBS(l, mid, vl);
+        }
+        void solve(){
+                sort(a + 1, a + n + 1, [&](const TUFF &x, const TUFF &y){
+                        return x.w < y.w;
+                });
+                a[n + 1].w = 1000000067LL;
+
+                for(int i = 1; i <= n; i++){
+                        pos[i] = i;
+                        sval[i] = a[i].s;
+                }
+                sort(sval + 1, sval + n + 1);
+                sort(pos + 1, pos + n + 1, [&](int x, int y){
+                        return a[x].s < a[y].s;
+                });
+                vector<int> ask1;
+                vector<Q2> ask2;
+                for(int i = 1; i <= q; i++){
+                        if(queries[i].t == -1){
+                                ask2.push_back({queries[i].m, queries[i].k, 0, 0, 0, i});
+                        }else{
+                                ask1.push_back(i);
+                        }
+                }
+                solve_type1(ask1);
+                build_inactive();
+                PBS(0, 1000000000LL, ask2);
+                for(int i = 1; i <= q; i++){
+                        cout << ans[i] << '\n';
+                }
+        }
+}
+int main(){
+        freopen("GIFT.INP","r",stdin);
+        freopen("GIFT.OUT","w",stdout);
+        ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+        cin >> n >> q;
+        for(int i = 1;i <= n;i++) cin >> a[i].w;
+        for(int i = 1;i <= n;i++) cin >> a[i].s;
+        for(int i = 1;i <= q;i++){
+                int x;cin >> x;
+                cin >> queries[i].m;
+                cin >> queries[i].k;
+                if(x == 1) cin >> queries[i].t;
+                else queries[i].t = -1;
+                queries[i].id = i;
+        }
+//        if(sub1::check())
+//        sub1::solve();
+//        else if(sub23::check())
+//        sub23::solve();
+//        else if(sub4::check())
+//        sub4::solve();
+//        else
+        sub5::solve();
+}
+/*
+*/
