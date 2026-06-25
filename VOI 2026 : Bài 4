@@ -1,112 +1,75 @@
 #include<bits/stdc++.h>
 using namespace std;
-#define int long long
-#define F first
-#define S second
-const int MAX = 200100,M = 1e9 + 7;
+/*
+Idea:
+
+*/
+const int MAX = 200100;
 int n,q;
-int a[MAX],queries[MAX];
-void PREPARE(){
-    cin >> n >> q;
-    for(int i = 1;i <= n;i++) cin >> a[i];
-    for(int i = 0;i < q;i++){
-        cin >> queries[i];
-    }
+long long a[MAX];
+int eli[MAX];
+long long ans[MAX];
+multiset<long long> st;
+long long C(long long n){
+        return n * (n - 1) / 2;
 }
-namespace sub123{
-    bool check(){return q == 1;}
-    int C(int n) {return n * (n - 1) / 2;}
-    void solve(){
-        map<int,int> mp1,mp2;
-        for(int i = 1;i < queries[0];i++){
-            mp1[a[i]]++;
+struct DSU{
+        int p[MAX];
+        map<long long,long long> cnt[MAX];
+        long long cur[MAX];
+        long long res[MAX];
+        int sz[MAX];
+        void init(int n){
+                iota(p,p + n + 1,0);
+                fill(sz,sz + n + 1,1);
+                for(int i = 1;i <= n;i++) cnt[i][a[i]]++,st.insert(0);
         }
-        for(int i = queries[0] + 1;i <= n;i++){
-            mp2[a[i]]++;
+        int par(int v){ return v == p[v] ? v : p[v] = par(p[v]); }
+        bool unite(int a,int b){
+                a = par(a);
+                b = par(b);
+                if(a == b) {
+                        return 0;
+                }
+                if(sz[a] < sz[b]) swap(a,b);
+                st.erase(st.find(res[a]));
+                st.erase(st.find(res[b]));
+                p[b] = a;
+                sz[a] += sz[b];
+                for(auto &v : cnt[b]){
+                        cur[a] -= C(cnt[a][v.first]);
+                        cnt[a][v.first] += v.second;
+                        cur[a] += C(cnt[a][v.first]);
+                }
+                res[a] = C(sz[a]) - cur[a];
+                st.insert(res[a]);
+                return 1;
         }
-        int cnt1 = 0,cnt2= 0;
-        for(auto &v : mp1){
-            cnt1 += v.S *(v.S - 1) / 2;
+} dsu;
+int main(){
+        freopen("TET.INP","r",stdin);
+        freopen("TET.OUT","w",stdout);
+        ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+        cin >> n >> q;
+        vector<int> qual(n + 1);
+        for(int i = 1;i <= n;i++){
+                cin >> a[i];
         }
-        for(auto &v : mp2){
-            cnt2 += v.S *(v.S - 1) / 2;
+        dsu.init(n);
+        for(int i = 1;i <= q;i++){
+                cin >> eli[i];
+                qual[eli[i]]++;
         }
-        cout << max(C(queries[0] - 1) - cnt1 + 1,C(n - (queries[0] + 1) + 1) - cnt2 + 1) << '\n';
-    }
-}
-namespace sub4{
-    int p[MAX],sz[MAX],num[MAX];
-    map<int,int> cnt[MAX];
-    int find(int v){
-        return v == p[v] ? v : p[v] = find(p[v]);
-    }
-    multiset<int> st;
-    int C(int n){return n * (n - 1) / 2;}
-    int W(int n){return C(sz[n]) - num[n] + 1; }
-    bool unite(int a,int b){
-        a = find(a);b = find(b);        if(a == b) return 0;
-        auto it = st.find(W(a));
-        if(it != st.end()) st.erase(it);
-        it = st.find(W(b));
-        if(it != st.end()) st.erase(it);
-        if(cnt[a].size() < cnt[b].size()) swap(a,b);
-        sz[a] += sz[b];
-        p[b] = a;
-        for(auto &v : cnt[b]){
-            if(cnt[a][v.F]){
-                num[a] -= C(cnt[a][v.F]);
-                cnt[a][v.F] += v.S;
-                num[a] += C(cnt[a][v.F]);
-            }
-            else{
-                cnt[a][v.F] = v.S;
-                num[a] += C(v.S);
-            }
+        for(int i = 1;i < n;i++) if(!qual[i] && !qual[i + 1]){
+                dsu.unite(i,i + 1);
         }
-        st.insert(W(a));
-        return 1;
-    }
-    void solve(){
-        iota(p,p + n + 1,0);
-        vector<bool> chosen(n + 1);
-        for(int &i : queries) chosen[i] = 1;
-        for(int i = 1; i <= n; i++){
-            if(!chosen[i]){
-                cnt[i][a[i]] = 1;
-                sz[i] = 1;
-                num[i] = 0;
-                st.insert(1);
-            }
+        for(int i = q;i >= 1;i--){
+                qual[eli[i]]--;
+                ans[i] = (*st.rbegin());
+                if(qual[eli[i]] == 0){
+                        if(eli[i] < n && !qual[eli[i] + 1]) dsu.unite(eli[i],eli[i] + 1);
+                        if(eli[i] > 1 && !qual[eli[i] - 1]) dsu.unite(eli[i],eli[i] - 1);
+                }
         }
-        for(int i = 1;i < n;i++){
-            if(chosen[i]) continue;
-            if(!chosen[i + 1]){
-                unite(i,i + 1);
-            }
-        }
-        cerr<< num[3] << ' ' << sz[3] << '\n';
-        cerr<< num[1] << ' ' << sz[1] << '\n';
-        vector<int> ans(q);
-        for(int i = q - 1;i >= 0;i--){
-            int pos = queries[i];
-            sz[pos] = 1;
-            cnt[pos].clear();
-            cnt[pos][a[pos]] = 1;
-            num[pos] = 0;
-            chosen[pos] = 0;
-            st.insert(1);
-            if(pos > 1 && !chosen[pos - 1]) unite(pos,pos - 1);
-            if(pos < n && !chosen[pos + 1]) unite(pos,pos + 1);
-            ans[i] = *st.rbegin();
-        }
-        for(int &i : ans) cout << i << '\n';
-    }
-}
-signed main(){
-    freopen("tet.inp","r",stdin);
-    freopen("tet.out","w",stdout);
-    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
-    PREPARE();
-    if(sub123::check()) sub123::solve();
-    else sub4::solve();
+        for(int i = 1;i <= q;i++) cout << ans[i] + 1 << '\n';
 }
