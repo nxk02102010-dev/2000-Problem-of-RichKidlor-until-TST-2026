@@ -1,0 +1,105 @@
+#include<bits/stdc++.h>
+using namespace std;
+/*
+Idea:
+
+*/
+const int MAX = 300100;
+int n,q;
+struct Q{
+        int l,r;
+        int id;
+} queries[MAX];
+long long a[MAX];
+int beg[MAX];
+int last[MAX];
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
+unordered_set<long long> used;
+long long value[MAX];
+long long sum_xor[MAX];
+long long ans[MAX];
+long long tot = 0;
+long long prefix[MAX];
+long long randomize(){
+        while(1){
+                long long x = rng();
+                if(used.count(x)){
+                        continue;
+                }
+                else{
+                        used.insert(x);
+                        return x;
+                }
+        }
+}
+int mp[MAX];
+void add(int i){
+        tot += mp[prefix[i]];
+        mp[prefix[i]]++;
+}
+void rem(int i){
+        mp[prefix[i]]--;
+        tot -= mp[prefix[i]];
+}
+void solve(){
+        for(int i = 1;i <= n;i++){
+                beg[a[i]] = beg[a[i]] == 0 ? i : beg[a[i]];
+        }
+        for(int i = n;i >= 1;i--){
+                last[a[i]] = last[a[i]] == 0 ? i : last[a[i]];
+        }
+        for(int i = 1;i <= n;i++){
+                if(last[a[i]] == i){
+                        value[i] = sum_xor[a[i]];
+                }
+                else{
+                        value[i] = randomize();
+                        sum_xor[a[i]] ^= value[i];
+                }
+        }
+        vector<long long> vals;
+        for(int i = 2;i <= n + 1;i++) prefix[i] = prefix[i - 1] ^ value[i - 1];
+        for(int i = 1;i <= n + 1;i++) vals.push_back(prefix[i]);
+        sort(vals.begin(),vals.end());
+        vals.erase(unique(vals.begin(),vals.end()),vals.end());
+        for(int i = 1;i <= n + 1;i++) prefix[i] = (int)(lower_bound(vals.begin(),vals.end(),prefix[i]) - vals.begin()) + 1;
+        int l = 1,r = 0;
+        int B = sqrt(n) + 1;
+        sort(queries + 1,queries + q + 1,[&](const Q &x,const Q &y){
+                if(x.l / B != y.l / B) return x.l / B < y.l / B;
+                return x.l / B % 2 ? x.r > y.r : x.r < y.r;
+        });
+        for(int i = 1;i <= q;i++){
+                int x = queries[i].l;
+                int y = queries[i].r;
+
+                while(l > x) add(--l);
+                while(r < y) add(++r);
+
+                while(l < x) rem(l++);
+                while(r > y) rem(r--);
+                
+                ans[queries[i].id] = tot;
+        }
+        for(int i = 1;i <= q;i++) cout << ans[i] << '\n';
+}
+int main(){
+        freopen("post.inp","r",stdin);
+        freopen("post.out","w",stdout);
+        ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+        cin >> n >> q;
+        vector<long long> vals;
+        for(int i = 1;i <= n;i++) cin >> a[i],vals.push_back(a[i]);
+        sort(vals.begin(),vals.end());
+        vals.erase(unique(vals.begin(),vals.end()),vals.end());
+        for(int i = 1;i <= n;i++) {
+                a[i] = (int)(lower_bound(vals.begin(),vals.end(),a[i]) - vals.begin()) + 1;
+        }
+        for(int i = 1;i <= q;i++){
+                cin >> queries[i].l;
+                cin >> queries[i].r;
+                queries[i].r++;
+                queries[i].id = i;
+        }
+        solve();
+}
