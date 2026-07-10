@@ -1,0 +1,57 @@
+#include<bits/stdc++.h>
+using namespace std;
+/*
+Idea:
+
+*/
+#define int long long
+const int MAX = 200200;
+int n,k;
+int cnt[MAX];
+int a[MAX];
+pair<int,int> items[MAX];
+struct Node{
+        int sum;
+        int last;
+        int used;
+        int tot;
+        int type;
+        int lasttot;
+};
+struct cmp{
+        bool operator()(const Node &a, const Node &b){
+                return a.sum > b.sum;
+        }
+};
+signed main(){
+        ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+        cin >> n >> k;
+        for(int i = 1;i <= n;i++){
+                cin >> items[i].first >> items[i].second;
+        }
+        sort(items + 1,items + n + 1);
+        priority_queue<Node,vector<Node>, cmp> q;
+        q.push({0,0,0});
+        int ans;
+        for(int i = 1;i <= k;i++){
+                Node top = q.top();
+                q.pop();
+                int sum = top.sum;
+                int last = top.last;
+                int used = top.used;
+                int tot = top.tot;
+                int type = top.type;
+                int lasttot = top.lasttot;
+                ans = sum;
+                if(type == 1 && lasttot < n){
+                        q.push({tot + items[lasttot + 1].first,lasttot + 1,1,tot,1,lasttot + 1});
+                }
+                if(items[last].second > used){
+                        q.push({sum + items[last].first,last,used + 1,tot,0,last});
+                }
+                if(last < n){
+                        q.push({sum + items[last + 1].first, last + 1,1,sum,1,last + 1});
+                }
+        }
+        cout << ans << '\n';
+}
