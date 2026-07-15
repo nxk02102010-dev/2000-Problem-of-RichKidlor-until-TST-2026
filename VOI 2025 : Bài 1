@@ -1,0 +1,63 @@
+#include<bits/stdc++.h>
+using namespace std;
+/*
+Idea:
+
+*/
+const int MAX = 200100;
+int up[MAX][20];
+int max_val[MAX][20];
+vector<int> g[MAX];
+int n;
+int k;
+long long f[MAX];
+int dep[MAX];
+int a[MAX];
+void dfs_build(int u,int p = -1){
+        for(int i = 1;i < 20;i++){
+                up[u][i] = up[up[u][i - 1]][i - 1];
+                max_val[u][i] = max(max_val[u][i - 1],max_val[up[u][i - 1]][i - 1]);
+        }
+        for(int &v : g[u]) if(v != p){
+                dep[v] = dep[u] + 1;
+                up[v][0] = u;
+                max_val[v][0] = a[u];
+                dfs_build(v,u);
+        }
+}
+int get_max(int u,int v){
+        if(dep[u] < dep[v]) swap(u,v);
+        int res = max(a[u],a[v]);
+        for(int i = 19;i >= 0;i--) if((dep[u] - dep[v]) & (1 << i)) res = max(res,max_val[u][i]),u = up[u][i];
+        if(u == v) return res;
+        for(int i = 19;i >= 0;i--) if(up[u][i] != up[v][i]){
+                res = max({res,max_val[u][i],max_val[v][i]});
+                u = up[u][i];
+                v = up[v][i];
+        }
+        return max({res,max_val[u][0],max_val[v][0]});
+}
+int main(){
+        freopen("ship.inp","r",stdin);
+        freopen("ship.out","w",stdout);
+        ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+        cin >> n;
+        for(int i = 1;i <= n;i++) cin >> a[i];
+        for(int i = 1;i <= n - 1;i++){
+                int u,v;cin >> u >> v;
+                g[u].push_back(v);
+                g[v].push_back(u);
+        }
+        cin >> k;
+        up[1][0] = 1;
+        max_val[1][0] = a[1];
+        dfs_build(1);
+        fill(f,f + n + 1,-1);
+        f[1] = 0;
+        for(int i = 1;i <= k;i++){
+                int u,v;cin >> u >> v;
+                if(f[u] != -1)
+                f[v] = max(f[v],f[u] + get_max(u,v));
+        }
+        cout << *max_element(f + 1,f + n + 1) << '\n';
+}
