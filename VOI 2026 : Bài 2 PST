@@ -1,0 +1,103 @@
+#include<bits/stdc++.h>
+using namespace std;
+/*
+Idea:
+
+*/
+const int MAX = 100100;
+int n,q,nn;
+pair<long long,long long> a[MAX];
+int root[MAX];
+vector<long long> vals,valS;
+int freq[MAX];
+int ID(long long x) { return (int)(lower_bound(vals.begin(),vals.end(),x) - vals.begin()); }
+struct PSTSegment{
+        struct Node{
+                long long sumOn;
+                long long cntOn;
+                long long cntOff;
+                long long sumOff;
+                int l,r;
+        };
+        vector<Node> t;
+        int create(int l,int r){ t.push_back({ t[l].sumOn + t[r].sumOn,t[l].cntOn + t[r].cntOn,t[l].cntOff + t[r].cntOff,t[l].sumOff + t[r].sumOff,l,r }); return (int)t.size() - 1; }
+        int build(int l,int r){
+                if(l == r){
+                        t.push_back({0,0,freq[l],vals[l] * freq[l],-1,-1});
+                        return (int)t.size() - 1;
+                }
+                int m = (l + r) >> 1;
+                return create(build(l,m),build(m + 1,r));
+        }
+        int updateOn(int pos,long long val,long long cnt,int v,int l,int r){
+                if(l == r){
+                        int make_bug = ID(val);
+                        t.push_back({ t[v].sumOn + val * cnt,t[v].cntOn + cnt,t[v].cntOff - 1,t[v].sumOff - val,-1,-1 });
+                        return (int)t.size() - 1;
+                }
+                int m = (l + r) >> 1;
+                if(pos <= m) return create(updateOn(pos,val,cnt,t[v].l,l,m),t[v].r);
+                return create(t[v].l,updateOn(pos,val,cnt,t[v].r,m + 1,r));
+        }
+        long long get(long long need,long long T,int v,int l,int r){
+                if(l == r){
+                        return vals[l] * need;
+                }
+                int m = (l + r) >> 1;
+                long long L = t[t[v].l].cntOn + t[t[v].l].cntOff * T;
+                long long Lval = t[t[v].l].sumOn + t[t[v].l].sumOff * T;
+                if(L > need) return get(need,T,t[v].l,l,m);
+                return Lval + get(need - L,T,t[v].r,m + 1,r);
+        }
+} seg;
+int check(long long M,long long K,long long T){
+        int pos = (int)(upper_bound(valS.begin(),valS.end(),T) - valS.begin()) - 1;
+        long long need = K * T;
+        if(seg.t[root[pos]].cntOn + seg.t[root[pos]].cntOff * T < need) return 0;
+        long long ret = seg.get(need,T,root[pos],1,nn);
+        return ret <= M;
+}
+int main(){
+        freopen("gift.inp","r",stdin);
+        freopen("gift.out","w",stdout);
+        ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+        cin >> n >> q;
+        vals.push_back(0);
+        valS.push_back(0);
+        for(int i = 1;i <= n;i++) cin >> a[i].second,vals.push_back(a[i].second);
+        for(int i = 1;i <= n;i++) cin >> a[i].first,valS.push_back(a[i].first);
+        sort(vals.begin(),vals.end());
+        vals.erase(unique(vals.begin(),vals.end()),vals.end());
+        for(int i = 1;i <= n;i++){
+                freq[ID(a[i].second)]++;
+        }
+        sort(valS.begin(),valS.end());
+        nn = (int)vals.size() - 1;
+        root[0] = seg.build(1,nn);
+        sort(a + 1,a + n + 1);
+        for(int i = 1;i <= n;i++){
+                int pos = ID(a[i].second);
+                root[i] = seg.updateOn(pos,a[i].second,a[i].first,root[i - 1],1,nn);
+        }
+        while(q--){
+                int t;cin >> t;
+                if(t == 1){
+                        long long M,K,T;
+                        cin >> M >> K >> T;
+                        cout << check(M,K,T) << '\n';
+                }
+                else{
+                        long long M,K;cin >> M >> K;
+                        long long l = 1,r = 1e9,ans = 0;
+                        while(l <= r){
+                                long long m = (l + r) >> 1;
+                                if(check(M,K,m)){
+                                        ans = m;
+                                        l = m + 1;
+                                }
+                                else r = m - 1;
+                        }
+                        cout << ans << '\n';
+                }
+        }
+}
