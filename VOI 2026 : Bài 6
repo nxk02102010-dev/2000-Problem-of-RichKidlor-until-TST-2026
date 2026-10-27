@@ -1,0 +1,381 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+const double TL = 2.8;
+const int MAX = 100;
+const double EPS = 1e-6;
+const double EPS_RET = 1e-4;
+const double TPT2 = 0.001;
+const double TPT1 = 3.0;
+
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
+
+long long RandInt(long long l,long long r){
+        return uniform_int_distribution<long long>(l,r)(rng);
+}
+
+double RandDouble(double l,double r){
+        return uniform_real_distribution<double>(l,r)(rng);
+}
+
+int K;
+double A;
+vector<pair<double,double>> camps;
+
+vector<pair<double,double>> candidates;
+
+struct E{
+        pair<double,double> p1;
+        pair<double,double> p2;
+        double dist;
+        int id1;
+        int id2;
+};
+
+
+double Dist(const pair<double,double> & u,const pair<double,double> &v){
+        return sqrt( (u.first - v.first) * (u.first - v.first) + (u.second - v.second) * (u.second - v.second) );
+}
+
+struct DSU{
+        int p[MAX];
+
+        void Init(int n){
+                iota(p,p + n + 1,0);
+        }
+
+        int Find(int v) { return v == p[v] ? v : p[v] = Find(p[v]); }
+
+        int Union(int u,int v){
+                u = Find(u);
+                v = Find(v);
+
+                if(u == v) return 0;
+
+                p[v] = u;
+
+                return 1;
+        }
+} Dsu;
+
+pair<double,vector<pair<int,int>>> GetMST(const vector<pair<double,double>> &cur_inter){
+        vector<pair<pair<double,double>,int>> cur;
+
+        for(int i = 0;i < (int)camps.size();i++) cur.push_back({camps[i],i});
+
+        for(int i = 0;i < (int)cur_inter.size();i++) cur.push_back({cur_inter[i],K + i});
+
+        vector<E> edges;
+        pair<double,vector<pair<int,int>>> ret;
+
+        Dsu.Init((int)cur.size());
+
+        for(int i = 0;i < (int)cur.size();i++){
+                for(int j = i + 1;j < (int)cur.size();j++){
+                        edges.push_back({cur[i].first,cur[j].first,Dist(cur[i].first,cur[j].first),i,j});
+                }
+        }
+
+        sort(edges.begin(),edges.end(),[&](const E &u,const E &v){ return u.dist < v.dist; });
+
+        for(auto edge : edges){
+                int u = edge.id1;
+                int v = edge.id2;
+                double w = edge.dist;
+
+                if(Dsu.Union(u,v)){
+                        ret.first += w;
+                        ret.second.push_back({u,v});
+                }
+        }
+
+        return ret;
+}
+
+void InCircle(pair<double,double> &x){
+        const double R = 100.0 - EPS_RET;
+        double d = Dist(x,{0.0,0.0});
+
+        if(d > R){
+                x.first = x.first / d * R;
+                x.second = x.second / d * R;
+        }
+}
+
+pair<double,double> FindFermatPoint(const pair<double,double> &A,const pair<double,double> &B,const pair<double,double> &C){
+        pair<double,double> P = {(A.first + B.first + C.first) / 3.0,(A.second + B.second + C.second) / 3.0};
+
+        for(int step = 0;step < 100;step++){
+                double dA = Dist(P,A);
+                double dB = Dist(P,B);
+                double dC = Dist(P,C);
+
+                if(dA < EPS || dB < EPS || dC < EPS) break;
+
+                double weight = (1.0 / dA) + (1.0 / dB) + (1.0 / dC);
+                P = {(A.first / dA + B.first / dB + C.first / dC) / weight,(A.second / dA + B.second / dB + C.second / dC) / weight};
+        }
+
+        InCircle(P);
+
+        return P;
+}
+
+void PrepareSteinerTree(){
+        for(int i = 0;i < K;i++) for(int j = i + 1;j < K;j++)  for(int k = j + 1;k < K;k++){
+                candidates.push_back(FindFermatPoint(camps[i],camps[j],camps[k]));
+        }
+
+        for(int i = 0;i < K;i++) for(int j = i + 1;j < K;j++){
+                pair<double,double> P = {(camps[i].first + camps[j].first) / 2.0,(camps[i].second + camps[j].second) / 2.0};
+                InCircle(P);
+                candidates.push_back(P);
+        }
+
+        candidates.push_back({0.0,0.0});
+
+        for(double angle = 0;angle < 360;angle += 30){
+                double rad = angle * acos(-1) / 180.0;
+
+                pair<double,double> P = {50.0 * cos(rad),50.0 * sin(rad)};
+
+                InCircle(P);
+
+                candidates.push_back(P);
+
+                P = {100.0 * cos(rad),100.0 * sin(rad)};
+
+                InCircle(P);
+
+                candidates.push_back(P);
+        }
+
+
+
+        sort(candidates.begin(),candidates.end());
+
+        candidates.erase(unique(candidates.begin(),candidates.end()),candidates.end());
+
+        vector<pair<double,int>> gain((int)candidates.size());
+
+        for(int i = 0;i < (int)candidates.size();i++){
+                gain[i] = {GetMST({candidates[i]}).first,i};
+        }
+
+        vector<pair<double,double>> top_candidates;
+
+        sort(gain.begin(),gain.end());
+
+        for(int i = 0;i < min(100,(int)candidates.size());i++) {
+                top_candidates.push_back(candidates[gain[i].second]);
+        }
+
+        swap(top_candidates,candidates);
+}
+
+pair<double,double> Coord(int idx,const vector<pair<double,double>> &pts){
+        if(idx < K) return camps[idx];
+        return pts[idx - K];
+}
+
+void Tune(pair<vector<pair<double,double>>,pair<double,vector<pair<int,int>>>> & need_tune){
+        if(need_tune.first.empty()) return;
+
+        for(int STEP = 0;STEP < 20;STEP++){
+                auto NewMST = GetMST(need_tune.first);
+
+                vector<vector<pair<double,double>>> g((int)need_tune.first.size());
+
+                for(auto &x : NewMST.second){
+                        if(x.first >= K) g[x.first - K].push_back(Coord(x.second,need_tune.first));
+                        if(x.second >= K) g[x.second - K].push_back(Coord(x.first,need_tune.first));
+                }
+
+                for(int i = 0;i < (int)need_tune.first.size();i++){
+                        if(g[i].empty()) continue;
+                        double w = 0.0;
+                        pair<double,double> P = {0,0};
+
+                        for(auto &v : g[i]){
+                                double d = Dist(need_tune.first[i],v);
+
+                                if(d < EPS) d = EPS;
+
+                                double child_w = 1.0 / d;
+
+                                P.first += v.first * child_w;
+                                P.second += v.second * child_w;
+
+                                w += child_w;
+                        }
+
+                        need_tune.first[i] = {P.first / w,P.second / w};
+
+                        InCircle(need_tune.first[i]);
+                }
+        }
+
+        need_tune.second = GetMST(need_tune.first);
+}
+
+void Fix2DegV(pair<vector<pair<double,double>>,pair<double,vector<pair<int,int>>>> & need_tune){
+        if(need_tune.first.empty()) return;
+
+        auto NewMST = GetMST(need_tune.first);
+
+        vector<int> deg((int)need_tune.first.size(),0);
+
+        vector<pair<int,int>> sorted_edges = NewMST.second;
+
+        sort(sorted_edges.begin(),sorted_edges.end(),[&](const auto &u,const auto &v) {
+                return Dist(Coord(u.first,need_tune.first),Coord(u.second,need_tune.first)) > Dist(Coord(v.first,need_tune.first),Coord(v.second,need_tune.first));
+        });
+
+        for(auto &x : NewMST.second){
+                if(x.first >= K) deg[x.first - K]++;
+                if(x.second >= K) deg[x.second - K]++;
+        }
+
+        int bad = 0;
+
+        int cur_edge = 0;
+
+        for(int i = 0;i < (int)need_tune.first.size();i++){
+                if(deg[i] <= 2){
+                        bad = 1;
+
+                        cur_edge++;
+                        if(cur_edge < (int)sorted_edges.size()){
+                                pair<double,double> p1 = Coord(sorted_edges[cur_edge].first,need_tune.first);
+                                pair<double,double> p2 = Coord(sorted_edges[cur_edge].second,need_tune.first);
+
+                                need_tune.first[i] = {(p1.first + p2.first) / 2 + RandDouble(-0.5,0.5),(p1.second + p2.second) / 2 + RandDouble(-0.5,0.5)};
+
+                                InCircle(need_tune.first[i]);
+                        }
+                }
+        }
+
+        if(bad) Tune(need_tune);
+}
+
+pair<vector<pair<double,double>>,pair<double,vector<pair<int,int>>>> RunSA(int M){
+        auto start_time = chrono::high_resolution_clock::now();
+
+        vector<pair<double,double>> cur_inter;
+
+        vector<int> used((int)candidates.size() + 1,0);
+
+        for(int i = 1;i <= M;i++){
+                int p = RandInt(0,(int)candidates.size() - 1);
+
+                while (used[p]) p = RandInt(0,(int)candidates.size() - 1);
+
+                used[p] = 1;
+
+                cur_inter.push_back(candidates[p]);
+        }
+
+        pair<vector<pair<double,double>>,pair<double,vector<pair<int,int>>>> ret = {cur_inter,GetMST(cur_inter)};
+        pair<vector<pair<double,double>>,pair<double,vector<pair<int,int>>>> cur_ret = ret;
+
+        double T = TPT1;
+        double step = 5.5;
+
+        int streak = 0;
+
+        for(int STEP = 0;;STEP++){
+                if((STEP % 100) == 0){
+                        auto now = chrono::high_resolution_clock::now();
+                        double eps = chrono::duration<double>(now - start_time).count();
+
+                        if(eps >= TL / ((K - 2) * 4)){
+                                break;
+                        }
+
+                        double t = min(1.0,eps / (TL / ((K - 2) * 4)));
+
+                        T = TPT1 * pow(TPT2 / TPT1,t);
+
+                        step = 5.5 * (1.0 - t) + 0.01;
+
+                        if(streak >= 200){
+                                T *= 1.5;
+                                streak = 0;
+                        }
+                }
+
+                int idx = RandInt(0,M - 1);
+
+                pair<double,double> cur_state = cur_inter[idx];
+
+                if(RandDouble(0,1) < 0.95){
+                        cur_inter[idx].first = cur_state.first + RandDouble(-step,step);
+                        cur_inter[idx].second = cur_state.second + RandDouble(-step,step);
+                }
+                else{
+                        cur_inter[idx] = candidates[RandInt(0,(int)candidates.size() - 1)];
+                }
+
+                InCircle(cur_inter[idx]);
+
+                pair<double,vector<pair<int,int>>> new_MST = GetMST(cur_inter);
+
+                if(new_MST.first <= cur_ret.second.first || RandDouble(0,1) < exp((-new_MST.first + cur_ret.second.first) / T)){
+                        cur_ret.second = new_MST;
+                        cur_ret.first = cur_inter;
+
+                        if(cur_ret.second.first < ret.second.first) ret = cur_ret;
+                        streak = 0;
+                }
+                else{
+                        cur_inter[idx] = cur_state;
+                        streak++;
+                }
+        }
+
+        Tune(ret);
+        Fix2DegV(ret);
+
+        return ret;
+}
+
+pair<vector<pair<double,double>>,pair<double,vector<pair<int,int>>>> RunHeuristic(){
+        pair<vector<pair<double,double>>,pair<double,vector<pair<int,int>>>> ret = {{},GetMST({})};
+        for(int M = 1;M <= K - 2;M++){
+                for(int times = 0;times < 4;times++){
+                        auto new_ret = RunSA(M);
+                        if(new_ret.second.first < ret.second.first) ret = new_ret;
+                }
+        }
+
+        return ret;
+}
+
+int main(){
+        ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+        if(fopen("test.inp","r")){
+                freopen("test.inp","r",stdin);
+                freopen("test.out","w",stdout);
+        }
+        else{
+                freopen("CAMP.INP","r",stdin);
+                freopen("CAMP.OUT","w",stdout);
+        }
+
+        cin >> K;
+
+        for(int i = 1;i <= K;i++){
+                double x;cin >> x;
+                camps.push_back({100.0 * cos(x * acos(-1) / 180), 100.0 * sin(x * acos(-1) / 180)});
+        }
+
+        PrepareSteinerTree();
+
+        auto ans = RunHeuristic();
+
+        cout << (int)ans.first.size() << '\n';
+
+        for(auto &x : ans.first)  cout << fixed << setprecision(4) << (fabs(x.first) < EPS_RET ? 0.0 : x.first) << ' ' << (fabs(x.second) < EPS_RET ? 0.0 : x.second) << '\n';
+        for(auto &x : ans.second.second) cout << x.first + 1 << ' ' << x.second + 1 << '\n';
+}
